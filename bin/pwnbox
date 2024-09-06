@@ -1,0 +1,276 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import subprocess
+import os
+import sys
+import pathlib
+# This import messes with terminal settings, makes cursor disappear
+# from pwn import *
+
+# context.terminal = ['tmux', 'splitw', '-h', '-l', '75%']
+
+def main():
+
+    parser = argparse.ArgumentParser(
+        description="Command line interface for pwnbox"
+    )
+
+    toplevel_parser = parser.add_subparsers(dest="command", help="Sub-commands")
+
+    # Create
+    create_parser = toplevel_parser.add_parser("create")
+    create_parser.add_argument("name")
+
+    # Enter
+    enter_parser = toplevel_parser.add_parser("enter")
+    enter_parser.add_argument("name")
+
+    # Remove
+    remove_parser = toplevel_parser.add_parser("remove",aliases=["rm","kill"])
+    remove_parser.add_argument("name")
+
+    # Debug
+    remove_parser = toplevel_parser.add_parser("gdb",aliases=["debug"])
+    remove_parser.add_argument("name")
+
+    # Temp
+    remove_parser = toplevel_parser.add_parser("temp",aliases=["tmp"])
+
+    # List
+    list_parser = toplevel_parser.add_parser("list",aliases=["ls"])
+
+    """
+    User qemu to attach to a binary.
+    """
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    if args.command == "create":
+        create(args.name)
+    elif args.command == "enter":
+        enter(args.name)
+    elif args.command in {"remove","rm","kill"}:
+        remove(args.name)
+    elif args.command in {"gdb","debug"}:
+        debug_command(args.name)
+    elif args.command in {"temp","tmp"}:
+        temp()
+    elif args.command in {"list","ls"}:
+        list_command()
+    else:
+        print("Unknown command")
+        parser.print_help()
+
+
+def create(name: str):
+
+    test = subprocess.run(
+        [
+            "docker",
+            "container",
+            "inspect",
+            f"{name}"
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    if test.returncode == 0:
+        print(f"A docker container with name '{name}' already exists")
+        sys.exit(1)
+
+    print(f"Creating pwnbox with image 'ctfsetup'")
+
+    result = subprocess.run(
+        [
+            "docker",
+            "run",
+            "--privileged",
+            "-it",
+            "--network", "host",
+            "--hostname", "pwnbox",
+            "-u", f"{os.getuid()}:{os.getgid()}",
+            "-d",
+            "-w", "/mount/",
+            "-v", f"{os.getcwd()}:/mount/",
+            "--name", f"{name}",
+            "ctfsetup",
+            "/bin/bash",
+        ]
+    )
+
+    enter(name)
+
+
+def enter(name: str):
+
+    test = subprocess.run(
+        [
+            "docker",
+            "container",
+            "inspect",
+            f"{name}"
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    if test.returncode != 0:
+        print(f"A docker container with name '{name}' does not exists")
+        sys.exit(1)
+    
+    docker_info = json.loads(test.stdout)
+
+    running = docker_info[0]["State"]["Running"]
+
+    if not running:
+        subprocess.run(
+            [
+                "docker",
+                "container",
+                "start",
+                f"{name}"
+            ]
+        )
+
+    mount_info = docker_info[0]["Mounts"][0]
+    host_dir = mount_info["Source"]
+
+    host_path = pathlib.Path(host_dir).resolve()
+    cwd_path = pathlib.Path(os.getcwd()).resolve()
+
+    rel = ""
+    try:
+        rel = cwd_path.relative_to(host_path)
+    except ValueError:
+        pass
+
+    result = subprocess.run(
+        [
+            "docker",
+            "exec",
+            "-it",
+            "-w", f"/mount/{rel}",
+            f"{name}",
+            "/bin/bash"
+        ]
+    )
+
+def remove(name: str):
+    result = subprocess.run(
+        [
+            "docker",
+            "kill",
+            f"{name}",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    
+    if b" is not running" in result.stderr:
+        pass
+
+    result = subprocess.run(
+        [
+            "docker",
+            "container",
+            "rm",
+            f"{name}",
+        ]
+    )
+
+
+def temp():
+    result = subprocess.run(
+        [
+            "docker",
+            "run",
+            "--privileged",
+            "-it",
+            "--rm",
+            "--network", "host",
+            "--hostname", "tmp-pwnbox",
+            "-u", f"{os.getuid()}:{os.getgid()}",
+            "-w", "/mount/",
+            "-v", f"{os.getcwd()}:/mount/",
+            "ctfsetup",
+            "/bin/bash",
+        ]
+    )
+
+def debug_command(name: str):
+    """
+    Option 1:
+        Mount the current working directory in a new instance of the docker that just is running qemu.
+        Just mount one single port. Then connect to gdb on that port.
+        -- Option to use an existing container
+
+        This will use the outside gdb
+
+        Is python bundled with the gdb? idk
+
+        Could we just mount the pwndbg folder? Would this cause issues with the python venv?
+
+    Option 2:
+        Do all of it in the container:
+
+        given a path to a file and an arch, compile, attach, and do the whole split thing.
+        In this case, pwndbg is the one that is inside the container
+
+        This is much much easier to do.
+
+        In my "shellcode" script I should have it able to do this
+
+        Make notes that it assumes that all the contents are in the _start function
+        
+    https://github.com/Gallopsled/pwntools/blob/736cf9d11229c9d7518c88d0d56ecbf28b3e505a/pwnlib/gdb.py#L891
+    """
+    cmd = ['gdb', '-q']
+
+
+    # TODO: Mount the cwd, and we are given the path to the file
+    # Read that file, compile it into the current working directory
+    # TODO: make a seperate "cross arch compile" command?
+    # run_in_new_terminal([
+    #     "docker",
+    #     "run",
+    #     "--privileged",
+    #     "-it",
+    #     "--rm",
+    #     "--network", "host",
+    #     "-u", f"{os.getuid()}:{os.getgid()}",
+    #     "-w", "/mount/",
+    #     "-v", f"{os.getcwd()}:/mount/",
+    #     "ctfsetup",
+    #     "/bin/bash",
+    # ])
+
+    # subprocess.Popen([
+    #     f"qemu-{name}",
+    #     "-g", "1234",
+    #     f"{name}"
+    # ])
+
+    # os.system("tmux splitw -F '#{pane_id}' -P " + f"'gdb -q '")
+
+def list_command():
+
+    # docker ps -a -q | xargs docker inspect --format '{{.Name}} {{.Config.Image}}'
+    # Also can do a check that a mount or something exists
+    result = subprocess.run(
+        [
+            "docker",
+            "ps",
+            "-a",
+            "--filter",
+            f"ancestor=ctfsetup"
+        ]
+    )
+
+
+
+if __name__ == "__main__":
+    main()
