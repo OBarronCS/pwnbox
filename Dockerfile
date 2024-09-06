@@ -100,11 +100,11 @@ RUN echo "export LC_ALL=en_US.UTF-8" >> ~/.bashrc && \
     echo "set debuginfod enabled on" >> ~/.bashrc && \
     echo '[[ -f ~/.bashrc ]] && . ~/.bashrc' > ~/.bash_profile
 
-COPY user.sh .
+COPY --chown=ubuntu user.sh .
 RUN if [ "$FULL_BUILD" = "true" ]; then \
         ./user.sh server; \
     else \
-        ./user.sh server noextra; \ 
+        ./user.sh server noextra; \
     fi
 
 ARG WSL_BUILD=false
