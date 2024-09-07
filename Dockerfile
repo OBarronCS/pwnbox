@@ -109,4 +109,4 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
 
 COPY --chown=ubuntu wsl.sh .
 
-RUN sudo wsl.sh
+RUN sudo ./wsl.sh
