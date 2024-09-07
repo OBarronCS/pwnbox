@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 ## This script should be run as sudo
 
 cat <<EOF > /etc/wsl.conf
