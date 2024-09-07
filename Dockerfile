@@ -107,11 +107,6 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
         ./user.sh server noextra; \
     fi
 
-ARG WSL_BUILD=false
-FROM base AS wsl
-RUN if [ "$WSL_BUILD" = "true" ]; then \
-    echo "[user]" | sudo tee /etc/wsl.conf && \
-    echo "default=ubuntu" | sudo tee -a /etc/wsl.conf && \
-    echo "[boot]" | sudo tee -a /etc/wsl.conf && \
-    echo "systemd=true" | sudo tee -a /etc/wsl.conf ; \
-    fi
+COPY --chown=ubuntu wsl.sh .
+
+RUN sudo wsl.sh
