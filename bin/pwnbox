@@ -4,12 +4,25 @@ import argparse
 import json
 import subprocess
 import os
+from pathlib import Path
 import sys
 import pathlib
+import configparser
 # This import messes with terminal settings, makes cursor disappear
 # from pwn import *
 
 # context.terminal = ['tmux', 'splitw', '-h', '-l', '75%']
+# CONTAINER_REGISTRY = "ghcr.io/obarroncs"
+# CONTAINER_NAME = "pwnbox"
+
+DEFAULT_IMAGE = "ghcr.io/obarroncs/pwnbox"
+DEFAULT_TAG = "full"
+DEFAULT_IMAGE_AND_TAG = f"{DEFAULT_IMAGE}:{DEFAULT_TAG}"
+
+CONFIG_FILE_NAME = ".pwnbox.conf"
+CONFIG_FILE_PATH = Path.home() / CONFIG_FILE_NAME
+
+BASE_DIRECTORY = Path(os.path.dirname(os.path.abspath(__file__))).parent.absolute()
 
 def main():
 
@@ -22,6 +35,7 @@ def main():
     # Create
     create_parser = toplevel_parser.add_parser("create")
     create_parser.add_argument("name")
+    create_parser.add_argument("--image", dest="image", default=None, required=False, help="Choose image")
 
     # Enter
     enter_parser = toplevel_parser.add_parser("enter")
@@ -37,9 +51,29 @@ def main():
 
     # Temp
     remove_parser = toplevel_parser.add_parser("temp",aliases=["tmp"])
+    remove_parser.add_argument("--image", dest="image", default=None, required=False, help="Choose image")
 
+    # Pull
+    pull_parser = toplevel_parser.add_parser("pull")
+
+    # Config
+    config_parser = toplevel_parser.add_parser("config", description="Set config settings")
+    config_subparsers = config_parser.add_subparsers(dest="config_subcommand")
+    # Config show
+    config_show_parser = config_subparsers.add_parser("show")
+    # Config set
+    config_set_parser = config_subparsers.add_parser("set")
+    config_set_parser.add_argument("--image", dest="image", default=None, required=False, help="Set default image")
+    config_set_parser.add_argument("--use-slim", dest="use_slim", action="store_true", default=False, required=False, help="Use slim version of default image")
+    config_set_parser.add_argument("--use-full", dest="use_full", action="store_true", default=None, required=False, help="Use full version of default image")
+
+    
+    
     # List
     list_parser = toplevel_parser.add_parser("list",aliases=["ls"])
+
+    # Update
+    update_parser = toplevel_parser.add_parser("update",aliases=["upgrade"])
 
     """
     User qemu to attach to a binary.
@@ -48,8 +82,9 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
+
     if args.command == "create":
-        create(args.name)
+        create(args.name, args.image)
     elif args.command == "enter":
         enter(args.name)
     elif args.command in {"remove","rm","kill"}:
@@ -57,15 +92,53 @@ def main():
     elif args.command in {"gdb","debug"}:
         debug_command(args.name)
     elif args.command in {"temp","tmp"}:
-        temp()
+        temp(args.image)
     elif args.command in {"list","ls"}:
         list_command()
+    elif args.command == "pull":
+        pull()
+    elif args.command == "config":
+        config(args)
+    elif args.command in {"update", "upgrade"}:
+        update()
     else:
         print("Unknown command")
         parser.print_help()
 
 
-def create(name: str):
+def get_image_name(image: str | None) -> str:
+    if image is not None:
+        return image
+    else:
+        config = configparser.ConfigParser()
+        try:
+            with open(CONFIG_FILE_PATH) as f:
+                config.read_file(f)
+                image = config["config"]["image"]
+                return image
+        except:
+            # Use the default name, in this case
+            image = DEFAULT_IMAGE_AND_TAG
+            test = subprocess.run(
+                [
+                    "docker",
+                    "image",
+                    "inspect",
+                    f"{image}"
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            if test.returncode != 0:
+                print(f"Pulling image '{image}'")
+                pull()
+            
+            return image
+        
+
+
+def create(name: str, image: str | None):
 
     test = subprocess.run(
         [
@@ -82,8 +155,11 @@ def create(name: str):
         print(f"A docker container with name '{name}' already exists")
         sys.exit(1)
 
-    print(f"Creating pwnbox with image 'ctfsetup'")
+    image = get_image_name(image)
 
+    print(f"Creating pwnbox with image '{image}'")
+
+    hostname = f"pwnbox-{name}"
     result = subprocess.run(
         [
             "docker",
@@ -91,13 +167,14 @@ def create(name: str):
             "--privileged",
             "-it",
             "--network", "host",
-            "--hostname", "pwnbox",
+            "--hostname", hostname,
+            "--add-host",f"{hostname}=127.0.0.1",
             "-u", f"{os.getuid()}:{os.getgid()}",
             "-d",
             "-w", "/mount/",
             "-v", f"{os.getcwd()}:/mount/",
             "--name", f"{name}",
-            "ctfsetup",
+            image,
             "/bin/bash",
         ]
     )
@@ -160,6 +237,8 @@ def enter(name: str):
     )
 
 def remove(name: str):
+    print(f"Deleting container '{name}'")
+
     result = subprocess.run(
         [
             "docker",
@@ -183,7 +262,9 @@ def remove(name: str):
     )
 
 
-def temp():
+def temp(image: str | None):
+    image = get_image_name(image)
+    hostname = "tmp-pwnbox"
     result = subprocess.run(
         [
             "docker",
@@ -192,14 +273,69 @@ def temp():
             "-it",
             "--rm",
             "--network", "host",
-            "--hostname", "tmp-pwnbox",
+            "--hostname", hostname,
+            "--add-host",f"{hostname}=127.0.0.1",
             "-u", f"{os.getuid()}:{os.getgid()}",
             "-w", "/mount/",
             "-v", f"{os.getcwd()}:/mount/",
-            "ctfsetup",
+            image,
             "/bin/bash",
         ]
     )
+
+def pull():
+    subprocess.run(
+        [
+            "docker",
+            "pull",
+            f"{DEFAULT_IMAGE_AND_TAG}"
+        ]
+    )
+
+
+def config(args):
+    if args.config_subcommand == "show":
+        print_config()
+    elif args.config_subcommand == "set":
+        # Look for things to set
+        image = args.image
+        use_slim = args.use_slim
+        use_full = args.use_full
+
+        config = configparser.ConfigParser()
+
+        config.read(CONFIG_FILE_PATH)
+
+        try:
+            config.add_section("config")
+        except configparser.DuplicateSectionError:
+            pass
+
+        if use_slim:
+            config["config"]["image"] = f"{DEFAULT_IMAGE}"
+        elif use_full:
+            config["config"]["image"] = f"{DEFAULT_IMAGE}:full"
+        elif image:
+            config["config"]["image"] = args.image
+
+        with open(CONFIG_FILE_PATH, "w") as f:
+            config.write(f)
+        
+        print("Config file modified\n")
+        print_config()
+
+
+    else:
+        print(f"Location of config file: {CONFIG_FILE_PATH}")
+
+
+def print_config():
+    os.system(f"cat {CONFIG_FILE_PATH}")
+
+
+def update():
+    print("Running 'git pull' to get latest version")
+    os.system(f"cd {BASE_DIRECTORY} && git pull")
 
 def debug_command(name: str):
     """
@@ -244,7 +380,7 @@ def debug_command(name: str):
     #     "-u", f"{os.getuid()}:{os.getgid()}",
     #     "-w", "/mount/",
     #     "-v", f"{os.getcwd()}:/mount/",
-    #     "ctfsetup",
+    #     image,
     #     "/bin/bash",
     # ])
 
@@ -258,17 +394,64 @@ def debug_command(name: str):
 
 def list_command():
 
-    # docker ps -a -q | xargs docker inspect --format '{{.Name}} {{.Config.Image}}'
+    # List all containers started with this script
+    # We need to do some simple detection
+    # docker inspect --format '{{.Name}} {{.Config.Image}}'
     # Also can do a check that a mount or something exists
+    # Find some metric to read
+    # Maybe the /mount folder?
     result = subprocess.run(
         [
             "docker",
             "ps",
             "-a",
-            "--filter",
-            f"ancestor=ctfsetup"
-        ]
+            "-q",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
     )
+
+
+    containers = [x.decode("utf-8") for x in result.stdout.split(b"\n")]
+
+    filter_command: list[str] = []
+    for id in containers:
+        # Empty lines
+        if not id:
+            continue
+
+        result = subprocess.run(
+            [
+                "docker",
+                "inspect",
+                str(id)
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    
+        docker_info = json.loads(result.stdout)
+        mounts = docker_info[0]["Mounts"]
+        if not mounts:
+            continue
+
+        mount_info = mounts[0]
+        destination = mount_info["Destination"]
+
+        network_mode = docker_info[0]["HostConfig"]["NetworkMode"]
+
+        if destination == "/mount" and network_mode == "host":
+            filter_command += ["--filter", f'id={id}']
+
+    
+    if filter_command:
+        result = subprocess.run(
+            [
+                "docker",
+                "ps",
+                "-a",
+            ] + filter_command,
+        )
 
 
 

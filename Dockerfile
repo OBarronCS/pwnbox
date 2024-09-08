@@ -37,7 +37,7 @@ ARG FULL_BUILD=false
 
 # Install cross compilers
 RUN if [ "$FULL_BUILD" = "true" ]; then \
-    apt-get install -y llvm && \
+    apt-get update -y && apt-get install -y llvm \
     gcc-14-aarch64-linux-gnu g++-14-aarch64-linux-gnu \
         libc6-arm64-cross libc6-dbg-arm64-cross libstdc++6-11-dbg-arm64-cross libstdc++-11-pic-arm64-cross \
     gcc-14-arm-linux-gnueabihf g++-14-arm-linux-gnueabihf \
@@ -100,13 +100,18 @@ RUN echo "export LC_ALL=en_US.UTF-8" >> ~/.bashrc && \
     echo "set debuginfod enabled on" >> ~/.bashrc && \
     echo '[[ -f ~/.bashrc ]] && . ~/.bashrc' > ~/.bash_profile
 
-COPY --chown=ubuntu user.sh .
+COPY --chown=ubuntu user.sh ./.user.sh
+
 RUN if [ "$FULL_BUILD" = "true" ]; then \
-        ./user.sh server; \
+        ./.user.sh server; \
     else \
-        ./user.sh server noextra; \
+        ./.user.sh server noextra; \
     fi
 
-COPY --chown=ubuntu wsl.sh .
+# In the WSL build, include ghidra
+FROM base AS wsl
+COPY --chown=ubuntu install_ghidra.sh ./.install_ghidra.sh
+RUN ./.install_ghidra.sh 
 
+COPY --chown=ubuntu wsl.sh .
 RUN sudo ./wsl.sh
