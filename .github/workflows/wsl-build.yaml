@@ -13,6 +13,7 @@ jobs:
 
     permissions:
       contents: write
+      packages: read
 
     steps:
     - name: Checkout code
