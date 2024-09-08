@@ -107,7 +107,7 @@ The second parameter is the path where windows will create the WSL filesystem. Y
 
 The third parameter is the path to the root filesystem `.tar` file that you want to import. `.tar.gz` files also work.
 ```sh
-wsl --import pwnbox "$HOME/wsl_pwnbox" ./wsl_rootfs.tar
+wsl --import pwnbox "$HOME/wsl_pwnbox" ./wsl_rootfs.tar.gz
 
 # Start the distro!
 wsl -d pwnbox
