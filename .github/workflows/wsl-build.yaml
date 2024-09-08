@@ -39,11 +39,11 @@ jobs:
     - name: Extract file system from container
       id: run-container
       run: |
-        # docker create --name wsl-temp ${{ steps.repo_slug.outputs.result }}:wsl
-        # docker export wsl-temp -o wsl_rootfs.tar
-        # docker rm wsl-temp
-        # gzip -9 -v wsl_rootfs.tar
-        echo "test" > ./wsl_rootfs.tar.gz
+        docker create --name wsl-temp ${{ steps.repo_slug.outputs.result }}:wsl
+        docker export wsl-temp -o wsl_rootfs.tar
+        docker rm wsl-temp
+        gzip -9 -v wsl_rootfs.tar
+        ls -pla
 
     - name: release
       uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # @v1
