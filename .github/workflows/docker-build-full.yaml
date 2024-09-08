@@ -39,24 +39,14 @@ jobs:
           result-encoding: string
           script: return '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}'.toLowerCase()
 
-      - name: Normal image
+      - name: Full image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: |
-            ${{ steps.repo_slug.outputs.result }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          target: base
-
-      - name: WSL image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ steps.repo_slug.outputs.result }}:wsl
+          build-args: |
+            FULL_BUILD=true
+          tags: ${{ steps.repo_slug.outputs.result }}:full
           cache-from: type=gha
           cache-to: type=gha,mode=max
           target: wsl
