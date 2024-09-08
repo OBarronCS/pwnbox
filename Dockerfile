@@ -115,3 +115,7 @@ RUN ./.install_ghidra.sh
 
 COPY --chown=ubuntu wsl.sh ./.wsl.sh
 RUN sudo ./.wsl.sh
+
+
+LABEL description="An environment for CTF and reverse-engineering!"
+
