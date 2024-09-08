@@ -1,0 +1,47 @@
+name: Extract and Release WSL tarball
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+      # Username must be lowercase
+    - name: Sanitize repo slug
+      uses: actions/github-script@v6
+      id: repo_slug
+      with:
+        result-encoding: string
+        script: return '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}'.toLowerCase()
+
+
+    - name: Set up Docker CLI
+      uses: docker/setup-buildx-action@v2
+
+    - name: Extract file system from container
+      id: run-container
+      run: |
+        docker create --name wsl-temp ${{ steps.repo_slug.outputs.result }}:wsl
+        docker export wsl-temp -o wsl_rootfs.tar
+        docker rm wsl-temp
+
+        docker run --name temp-container -d ${{ secrets.REGISTRY }}/${{ secrets.IMAGE_NAME }} sleep 3600
+        gzip -9 -v wsl_rootfs.tar
+
+    - name: release
+      uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # @v1
+      with:
+        files: |
+          ./wsl_rootfs.tar.gz
+        draft: true
+        token: ${{ secrets.TOKEN }}

@@ -113,5 +113,5 @@ FROM base AS wsl
 COPY --chown=ubuntu install_ghidra.sh ./.install_ghidra.sh
 RUN ./.install_ghidra.sh 
 
-COPY --chown=ubuntu wsl.sh .
-RUN sudo ./wsl.sh
+COPY --chown=ubuntu wsl.sh ./.wsl.sh
+RUN sudo ./.wsl.sh

@@ -40,8 +40,19 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.repo_slug.outputs.result }}:latest
-      
+          tags: |
+            ${{ steps.repo_slug.outputs.result }}:latest
+          target: base
+          
+      - name: WSL image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.repo_slug.outputs.result }}:wsl
+          target: wsl
+
       - name: Full image
         uses: docker/build-push-action@v6
         with:
@@ -50,4 +61,4 @@ jobs:
           build-args: |
             FULL_BUILD=true
           tags: ${{ steps.repo_slug.outputs.result }}:full
-      
+          target: full
