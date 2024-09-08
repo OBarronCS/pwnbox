@@ -26,14 +26,15 @@ echo "export PATH="$HOME/pwnbox/bin:$PATH" >> ~/.zshrc
 ### Create a pwnbox
 This command will create a container with a given name - `ctf` in this case
 ```sh
-pwnbox create ctf
+pwnbox create ctf [--image IMAGE_NAME]
+# You can optionally pass an image name to override the use of the default image included in this repo
 ```
 
 ### Enter an existing pwnbox
 ```sh
-pwnbox enter ctf [--image IMAGE_NAME]
-# You can optionally pass an image name to override the use of the default image included in this repo
+pwnbox enter ctf 
 ```
+
 ### Other
 ```sh
 # Create a temporary instance - this will be removed once the terminal session ends
