@@ -26,13 +26,19 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Normal image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: latest
       
       - name: Full image
         uses: docker/build-push-action@v6
@@ -41,5 +47,5 @@ jobs:
           push: true
           build-args: |
             FULL_BUILD=true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:full
+          tags: full
       
