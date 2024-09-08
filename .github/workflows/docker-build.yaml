@@ -57,6 +57,8 @@ jobs:
           push: true
           tags: |
             ${{ steps.repo_slug.outputs.result }}:wsl
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           target: wsl
 
       - name: Full image
@@ -67,4 +69,6 @@ jobs:
           build-args: |
             FULL_BUILD=true
           tags: ${{ steps.repo_slug.outputs.result }}:full
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           target: wsl
