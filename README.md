@@ -1,8 +1,8 @@
 # pwnbox
 
-This is wrapper around various `Docker` commands to create an Linux environment useful for CTF. The container is setup with many tools, is run with `--privileged` to enable certain behaviors (namely GDB changing ASLR settings), and `network` mode is set to `host` for easy ability to run networked programs. Additionally, the current working directory will be mounted to `/mount` inside the container, letting you share files with the host.
+This is wrapper around various `Docker` commands to create a Linux environment useful for CTF. `pwnbox` will create a container that is setup with many tools, is run with `--privileged` to enable certain behaviors (namely GDB changing ASLR settings), and Docker `network` mode is set to `host` for easy ability to run networked programs. Additionally, the current working directory will be mounted to `/mount` inside the container, letting you share files with the host.
 
-The default container image that `pwnbox` will use is built from the `Dockerfile`, which is pushed to `ghcr.io/obarroncs/pwnbox`. There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB. By default, the normal image is used. See notes below to change which image is used.
+The default container image that `pwnbox` will use is built from the `Dockerfile` and is pushed to `ghcr.io/obarroncs/pwnbox`. There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB. By default, the normal image is used. See notes below to change which image is used.
 
 A variant for `wsl` is also built - the [filesystem can be exported and used to install a `wsl` distro](#create-wsl-image-from-the-container)!
 
@@ -32,7 +32,24 @@ pwnbox create ctf
 ### Enter an existing pwnbox
 ```sh
 pwnbox enter ctf [--image IMAGE_NAME]
-# You can optionally pass an image name, and the command will use that image instead of the default image
+# You can optionally pass an image name to override the use of the default image included in this repo
+```
+### Other
+```sh
+# Create a temporary instance - this will be removed once the terminal session ends
+pwnbox temp
+
+# Delete a pwnbox
+pwnbox rm pwnbox-name
+
+# List all pwnboxes
+pwnbox list
+
+# Update - this simply runs `git pull` for the repo
+pwnbox update
+
+# Pull the latest version of the pwnbox image from the GitHub Container Registry
+pwnbox pull
 ```
 
 ### Config
@@ -48,30 +65,19 @@ pwnbox config set --use-slim
 pwnbox config set --use-full
 ```
 
-```sh
-# Create a temporary instance - this will be removed once the terminal session ends
-pwnbox temp
-
-# Delete a pwnbox
-pwnbox rm pwnbox-name
-
-# List all pwnboxes
-pwnbox list
-
-# Update - this simply runs `git pull` for the repo
-pwndbg update
-```
 
 ## Development
 ### Manually build the image
 ```sh
 # Base image
-docker build . --target base -t ctfsetup
+docker build . --target base -t pwnbox
 # Optional build args:
 #   --build-arg FULL_BUILD=true
 
 # Image build for WSL
-docker build . --target wsl -t ctfsetup
+docker build . --target wsl -t pwnbox
+
+# To use this local image with `pwnbox create`, run `pwnbox config set --image pwnbox`
 ```
 
 
@@ -83,7 +89,7 @@ You can head to the [releases page](https://github.com/OBarronCS/pwnbox/releases
 
 ```powershell
 # Step 1 - extract the root filesystem
-docker create --name wsl-temp ctfsetup
+docker create --name wsl-temp pwnbox
 # This will take multiple minutes, and it has no progress meter
 docker export wsl-temp -o wsl_rootfs.tar
 docker rm wsl-temp

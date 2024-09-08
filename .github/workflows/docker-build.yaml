@@ -67,4 +67,4 @@ jobs:
           build-args: |
             FULL_BUILD=true
           tags: ${{ steps.repo_slug.outputs.result }}:full
-          target: full
+          target: wsl

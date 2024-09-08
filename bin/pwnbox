@@ -16,7 +16,7 @@ import configparser
 # CONTAINER_NAME = "pwnbox"
 
 DEFAULT_IMAGE = "ghcr.io/obarroncs/pwnbox"
-DEFAULT_TAG = "full"
+DEFAULT_TAG = "latest"
 DEFAULT_IMAGE_AND_TAG = f"{DEFAULT_IMAGE}:{DEFAULT_TAG}"
 
 CONFIG_FILE_NAME = ".pwnbox.conf"
@@ -107,6 +107,9 @@ def main():
 
 
 def get_image_name(image: str | None) -> str:
+    """
+    Return the image that will be used on the next `pwnbox create`.
+    """
     if image is not None:
         return image
     else:
@@ -119,20 +122,20 @@ def get_image_name(image: str | None) -> str:
         except:
             # Use the default name, in this case
             image = DEFAULT_IMAGE_AND_TAG
-            test = subprocess.run(
-                [
-                    "docker",
-                    "image",
-                    "inspect",
-                    f"{image}"
-                ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
+            # test = subprocess.run(
+            #     [
+            #         "docker",
+            #         "image",
+            #         "inspect",
+            #         f"{image}"
+            #     ],
+            #     stdout=subprocess.PIPE,
+            #     stderr=subprocess.PIPE,
+            # )
 
-            if test.returncode != 0:
-                print(f"Pulling image '{image}'")
-                pull()
+            # if test.returncode != 0:
+            #     print(f"Pulling image '{image}'")
+            #     pull()
             
             return image
         
@@ -284,13 +287,24 @@ def temp(image: str | None):
     )
 
 def pull():
-    subprocess.run(
-        [
-            "docker",
-            "pull",
-            f"{DEFAULT_IMAGE_AND_TAG}"
-        ]
-    )
+
+    current_image = get_image_name(None)
+    if current_image.endswith("full"):
+        subprocess.run(
+            [
+                "docker",
+                "pull",
+                f"{DEFAULT_IMAGE}:full"
+            ]
+        )
+    else:
+        subprocess.run(
+            [
+                "docker",
+                "pull",
+                f"{DEFAULT_IMAGE}:latest"
+            ]
+        )
 
 
 def config(args):
@@ -330,7 +344,11 @@ def config(args):
 
 
 def print_config():
-    os.system(f"cat {CONFIG_FILE_PATH}")
+    if os.path.isfile(CONFIG_FILE_PATH):
+        os.system(f"cat {CONFIG_FILE_PATH}")
+    else:
+        print("Config file not yet created")
+        print(f"Default image: {DEFAULT_IMAGE_AND_TAG}")
 
 
 def update():
