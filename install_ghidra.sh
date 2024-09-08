@@ -17,7 +17,7 @@ if [ ! -d "/opt/ghidra" ]; then
     
     wget -O ~/ghidra_install.zip $(curl -L api.github.com/repos/NationalSecurityAgency/ghidra/releases/latest | jq -r ".assets[0].browser_download_url")
     
-    sudo unzip ~/ghidra_install.zip -d /opt/
+    sudo unzip -q ~/ghidra_install.zip -d /opt/
     sudo mv /opt/ghidra* /opt/ghidra
     # :user is for Ubuntu server - so everyone can access it
     sudo chown $(whoami):users -R /opt/ghidra
