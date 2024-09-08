@@ -2,7 +2,7 @@
 
 This is wrapper around various `Docker` commands to create a Linux environment useful for CTF. `pwnbox` will create a container that is setup with many tools, is run with `--privileged` to enable certain behaviors (namely GDB changing ASLR settings), and Docker `network` mode is set to `host` for easy ability to run networked programs. Additionally, the current working directory will be mounted to `/mount` inside the container, letting you share files with the host.
 
-The default container image that `pwnbox` will use is built from the `Dockerfile` and is pushed to `ghcr.io/obarroncs/pwnbox`. There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB. By default, the normal image is used. See notes below to change which image is used.
+The default container image that `pwnbox` will use is built from the `Dockerfile` in this repo. A pre-built version can be found at `ghcr.io/obarroncs/pwnbox`. There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB. By default, the normal image is used. See notes below to change which image is used.
 
 A variant for `wsl` is also built - the [filesystem can be exported and used to install a `wsl` distro](#create-wsl-image-from-the-container)!
 
