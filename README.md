@@ -88,8 +88,8 @@ We can extract the root filesystem from the image and use it as a WSL distro!
 You can head to the [releases page](https://github.com/OBarronCS/pwnbox/releases) to grab the files and skip straight to step 2 (the file name ends in `tar.gz`). To build and extract the filesystem locally, start at step 1.
 
 
+### Step 1 - extract the root filesystem
 ```powershell
-# Step 1 - extract the root filesystem
 docker create --name wsl-temp pwnbox
 # This will take multiple minutes, and it has no progress meter
 docker export wsl-temp -o wsl_rootfs.tar
@@ -97,10 +97,17 @@ docker rm wsl-temp
 
 # Optionally, gzip the tar file to create a compressed archive for sharing. In testing, this has reduced the size of the tarball to a third of the original size.
 gzip -9 -v wsl_rootfs.tar
+```
+### Step 2 - create a WSL distro with the tar file!
+Use the `wsl --import` command to create a distro from the tar file.
 
-# Step 2 - create a WSL distro with the tar file!
-wsl --import pwnbox "$HOME/wsl_pwnbox" wsl_rootfs.tar
-# --import also accepts .tar.gz files
+The first parameter is the name assigned to the new distro.
+
+The second parameter is the path where windows will create the WSL filesystem. You will never interact with this manually, so just place it somewhere, like in your home directory.
+
+The third parameter is the path to the root filesystem `.tar` file that you want to import. `.tar.gz` files also work.
+```sh
+wsl --import pwnbox "$HOME/wsl_pwnbox" ./wsl_rootfs.tar
 
 # Start the distro!
 wsl -d pwnbox
