@@ -76,7 +76,10 @@ docker build . --target wsl -t ctfsetup
 
 
 ## Create WSL image from the container
-We can extract the root filesystem from the image and use it as a WSL distro! If you already have the `.tar` file, you can skip to step 2.
+We can extract the root filesystem from the image and use it as a WSL distro!
+
+You can head to the [releases page](https://github.com/OBarronCS/pwnbox/releases) to grab the files and skip straight to step 2 (the file name ends in `tar.gz`). To build and extract the filesystem locally, start at step 1.
+
 
 ```powershell
 # Step 1 - extract the root filesystem
@@ -85,8 +88,7 @@ docker create --name wsl-temp ctfsetup
 docker export wsl-temp -o wsl_rootfs.tar
 docker rm wsl-temp
 
-# Optionally, gzip the tar file to create a compressed archive for sharing
-# In testing, this has reduced the size of the tarball to a third of the original size
+# Optionally, gzip the tar file to create a compressed archive for sharing. In testing, this has reduced the size of the tarball to a third of the original size.
 gzip -9 -v wsl_rootfs.tar
 
 # Step 2 - create a WSL distro with the tar file!
@@ -96,7 +98,7 @@ wsl --import pwnbox "$HOME/wsl_pwnbox" wsl_rootfs.tar
 # Start the distro!
 wsl -d pwnbox
 # Give it a few seconds to become responsive, and you are ready to go!
-# pwnbox is automatically added to the profile
+# pwnbox is automatically added to the Windows Terminal profile
 ```
 
 ### Notes on WSL + Docker Desktop on Windows
