@@ -41,7 +41,6 @@ jobs:
         docker export wsl-temp -o wsl_rootfs.tar
         docker rm wsl-temp
 
-        docker run --name temp-container -d ${{ secrets.REGISTRY }}/${{ secrets.IMAGE_NAME }} sleep 3600
         gzip -9 -v wsl_rootfs.tar
 
     - name: release
