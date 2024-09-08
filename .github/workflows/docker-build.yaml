@@ -27,18 +27,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
+      # Username must be lowercase
+      - name: Sanitize repo slug
+        uses: actions/github-script@v6
+        id: repo_slug
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          result-encoding: string
+          script: return '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}'.toLowerCase()
 
       - name: Normal image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: latest
+          tags: ${{ steps.repo_slug.outputs.result }}:latest
       
       - name: Full image
         uses: docker/build-push-action@v6
@@ -47,5 +49,5 @@ jobs:
           push: true
           build-args: |
             FULL_BUILD=true
-          tags: full
+          tags: ${{ steps.repo_slug.outputs.result }}:full
       
