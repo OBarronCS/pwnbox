@@ -22,7 +22,7 @@ if [ ! -d "/opt/ghidra" ]; then
     # :user is for Ubuntu server - so everyone can access it
     sudo chown $(whoami):users -R /opt/ghidra
 
-cat << EOF > ~/ghidra.desktop
+cat << EOF > ~/.ghidra.desktop
 [Desktop Entry]
 Categories=Application;Development;
 Comment[en_US]=Ghidra Software Reverse Engineering Suite
@@ -47,7 +47,7 @@ X-KDE-Username=
 EOF
 
     print_info "Adding ghidra to applications list"
-    sudo cp ~/ghidra.desktop /usr/share/applications
+    sudo cp ~/.ghidra.desktop /usr/share/applications
 
     print_info "Deleting ghidra_install.zip"
     rm ~/ghidra_install.zip
