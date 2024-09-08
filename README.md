@@ -101,7 +101,7 @@ gzip -9 -v wsl_rootfs.tar
 ### Step 2 - create a WSL distro with the tar file!
 Use the `wsl --import` command to create a distro from the tar file.
 
-The first parameter is the name assigned to the new distro.
+The first parameter is the name assigned to the new distro - in this example, we call it `pwnbox`.
 
 The second parameter is the path where windows will create the WSL filesystem. You will never interact with this manually, so just place it somewhere, like in your home directory.
 
