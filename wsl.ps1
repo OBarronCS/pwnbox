@@ -24,7 +24,7 @@ $out_file_name = "wsl_rootfs_$timestamp.tar.gz"
 $download_attempt = iwr ((irm api.github.com/repos/obarroncs/pwnbox/releases/latest | % assets)[0].browser_download_url) -OutFile $out_file_name
 
 if (-not $?){
-    Write-Output "Failed to download image"
+    Write-Output "Failed to download the pre-built root filesystem"
     exit 1
 }
 
