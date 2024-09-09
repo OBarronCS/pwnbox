@@ -21,6 +21,8 @@ $distro_name = Get-DistroName -base_name $base_name
 $timestamp = (Get-Date).ToString("yyyyMMddHHmmss")
 $out_file_name = "wsl_rootfs_$timestamp.tar.gz"
 
+Write-Output "Downloading the latest release file for the WSL root filesystem"
+Write-Output "The file is about 2GB"
 $download_attempt = iwr ((irm api.github.com/repos/obarroncs/pwnbox/releases/latest | % assets)[0].browser_download_url) -OutFile $out_file_name
 
 if (-not $?){
