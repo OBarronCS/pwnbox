@@ -7,7 +7,7 @@ The default container image that `pwnbox` will use is built from the `Dockerfile
 A variant for `wsl` is also built - the [filesystem can be exported and used to install a `wsl` distro](#create-wsl-image-from-the-container)!
 
 ## Install
-Cloned this repository and add the `bin` folder to your path!
+Clone this repository and add the `bin` folder to your path!
 ```sh
 # This will clone the repo to the ~/pwnbox folder. You can change this location, but make sure to set the PATH variable accordingly.
 git clone https://github.com/OBarronCS/pwnbox.git ~/pwnbox
