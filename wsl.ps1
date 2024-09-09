@@ -21,7 +21,12 @@ $distro_name = Get-DistroName -base_name $base_name
 $timestamp = (Get-Date).ToString("yyyyMMddHHmmss")
 $out_file_name = "wsl_rootfs_$timestamp.tar.gz"
 
-iwr ((irm api.github.com/repos/obarroncs/pwnbox/releases/latest | % assets)[0].browser_download_url) -OutFile $out_file_name
+$download_attempt = iwr ((irm api.github.com/repos/obarroncs/pwnbox/releases/latest | % assets)[0].browser_download_url) -OutFile $out_file_name
+
+if (-not $?){
+    Write-Output "Failed to download image"
+    exit 1
+}
 
 $output = wsl --import $distro_name "$HOME/wsl_managed_pwnbox_timestamp" $out_file_name 2>&1
 
