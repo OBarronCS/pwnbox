@@ -58,7 +58,7 @@ pwnbox pull
 # Print the current config
 pwnbox config show
 
-# Set the default image (the one used on pwnbox create)
+# Change the default image (the one used on pwnbox create)
 pwnbox config set --image IMAGE
 # Set the default image to the 5GB `pwnbox` image
 pwnbox config set --use-slim
