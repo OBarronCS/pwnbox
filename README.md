@@ -120,7 +120,7 @@ Alternatively, you can use this handy one-liner to run a script to do all of the
 ```powershell
 # The downloaded file will go into PowerShell's current directory
 cd $HOME/Downloads
-# This is the PowerShell equivalent of `curl | bash`)
+# This is the PowerShell equivalent of "curl | bash"
 iwr https://obarroncs.github.io/pwnbox/wsl.ps1 | iex
 ```
 
