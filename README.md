@@ -139,7 +139,7 @@ wsl --shutdown
 diskpart
 select vdisk file="C:\Users\{YourUser}\AppData\Local\Docker\wsl\data\ext4.vhdx"
 attach vdisk readonly
-# If you get an error that says "Disk in use", run "wsl --shutdown" again
+# If you get an error that says "Disk in use", run "wsl --shutdown" again in another terminal
 compact vdisk
 detach vdisk
 exit
