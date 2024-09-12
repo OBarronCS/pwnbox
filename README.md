@@ -14,11 +14,11 @@ git clone https://github.com/OBarronCS/pwnbox.git ~/pwnbox
 ```
 #### bash
 ```sh
-echo "export PATH="$HOME/pwnbox/bin:$PATH" >> ~/.bashrc
+echo 'export PATH="$HOME/pwnbox/bin:$PATH"' >> ~/.bashrc
 ```
 #### zsh
 ```sh
-echo "export PATH="$HOME/pwnbox/bin:$PATH" >> ~/.zshrc
+echo 'export PATH="$HOME/pwnbox/bin:$PATH"' >> ~/.zshrc
 ```
 
 ## Usage
@@ -83,10 +83,9 @@ docker build . --target wsl -t pwnbox
 
 
 ## Create WSL image from the container
-We can extract the root filesystem from the image and use it as a WSL distro!
+We can extract the root filesystem from the image and use it as a WSL distro! There's a [one line PowerShell command](#automated-install) that will do this for you!
 
-You can head to the [releases page](https://github.com/OBarronCS/pwnbox/releases) to grab the files and skip straight to step 2 (the file name ends in `tar.gz`). To build and extract the filesystem locally, start at step 1.
-
+To do it manually, you can head to the [releases page](https://github.com/OBarronCS/pwnbox/releases) to grab the files (the file name ends in `tar.gz`) and go to step 2 below. To build and extract the filesystem locally, start at step 1.
 
 ### Step 1 - extract the root filesystem
 ```powershell
@@ -114,6 +113,19 @@ wsl -d pwnbox
 # Give it a few seconds to become responsive, and you are ready to go!
 # pwnbox is automatically added to the Windows Terminal profile
 ```
+
+### Automated install
+Alternatively, you can use this handy one-liner to run a script to do all of these steps for you! It will download the latest `.tar.gz` file from GitHub releases and install it as a distro on WSL. 
+
+```powershell
+# The downloaded file will go into PowerShell's current directory
+cd $HOME/Downloads
+# This is the PowerShell equivalent of `curl | bash`)
+iwr https://obarroncs.github.io/pwnbox/wsl.ps1 | iex
+```
+
+The script is being hosted on `GitHub Pages`, and can be found [on the `gh-pages` branch](https://github.com/OBarronCS/pwnbox/blob/gh-pages/wsl.ps1).
+
 
 ### Notes on WSL + Docker Desktop on Windows
 
