@@ -124,7 +124,7 @@ cd $HOME/Downloads
 iwr https://obarroncs.github.io/pwnbox/wsl.ps1 | iex
 ```
 
-The script is being hosted on `GitHub Pages`, and can be found [on the `gh-pages` branch](https://github.com/OBarronCS/pwnbox/blob/gh-pages/wsl.ps1).
+The script is being hosted on `GitHub Pages` and can be found [on the `gh-pages` branch](https://github.com/OBarronCS/pwnbox/blob/gh-pages/wsl.ps1).
 
 
 ### Notes on WSL + Docker Desktop on Windows
