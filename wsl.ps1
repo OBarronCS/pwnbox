@@ -22,7 +22,7 @@ $timestamp = (Get-Date).ToString("yyyyMMddHHmmss")
 $out_file_name = "wsl_rootfs_$timestamp.tar.gz"
 
 Write-Output "Downloading the latest release file for the WSL root filesystem"
-Write-Output "The file is about 2GB"
+Write-Output "The file is about 2GB - writing to $pwd\$out_file_name"
 Import-Module BitsTransfer
 
 $download_url = (irm api.github.com/repos/obarroncs/pwnbox/releases/latest | % assets)[0].browser_download_url
