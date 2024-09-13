@@ -23,13 +23,12 @@ RUN apt-get update -y \
     ruby-dev \
     openjdk-17-jdk \
     bat \
-    iproute2 traceroute \
+    iproute2 traceroute dnsutils \
     libc6-dbg libc6-dbg:i386 libstdc++6:i386 \
     libssl-dev liblzma-dev pkg-config patchelf \
     build-essential libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev \
     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
-    qemu-system qemu-kvm qemu-user qemu-user-binfmt \
     autoconf automake libtool flex bison \
     && rm -rf /var/lib/apt/lists/*
 
@@ -37,7 +36,9 @@ ARG FULL_BUILD=false
 
 # Install cross compilers
 RUN if [ "$FULL_BUILD" = "true" ]; then \
-    apt-get update -y && apt-get install -y llvm \
+    apt-get update -y && apt-get install -y \
+    llvm \
+    qemu-system qemu-kvm qemu-user qemu-user-binfmt \
     gcc-14-aarch64-linux-gnu g++-14-aarch64-linux-gnu \
         libc6-arm64-cross libc6-dbg-arm64-cross libstdc++6-11-dbg-arm64-cross libstdc++-11-pic-arm64-cross \
     gcc-14-arm-linux-gnueabihf g++-14-arm-linux-gnueabihf \
