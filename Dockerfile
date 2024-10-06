@@ -1,10 +1,15 @@
 # FROM ubuntu:24.04
 FROM dokken/ubuntu-24.04 AS base
 
+RUN apt-get update -y && apt-get install -y unminimize
+RUN yes | unminimize
+
 RUN dpkg --add-architecture i386
 RUN apt-get update -y \
     && apt-get install -y \
     curl wget socat netcat-openbsd \
+    manpages-posix-dev \
+    man-db \
     git \
     zip unzip \
     tmux \
