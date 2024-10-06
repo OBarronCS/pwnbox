@@ -2,6 +2,9 @@ name: Extract and Release WSL tarball
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Publish Full Docker Image"]
+    types: [completed]
 
 env:
   REGISTRY: ghcr.io
