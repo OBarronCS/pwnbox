@@ -3,7 +3,7 @@ name: Extract and Release WSL tarball
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Publish Full Docker Image"]
+    workflows: ["Publish Docker Images"]
     types: [completed]
 
 env:
