@@ -17,8 +17,9 @@ jobs:
         uses: actions/checkout@v4.2.0
 
       - name: Choose files to deploy
-        mkdir public
-        mv wsl.ps1 public
+        run: |
+          mkdir public
+          mv wsl.ps1 public
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3.0.1
