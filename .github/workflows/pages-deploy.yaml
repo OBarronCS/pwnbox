@@ -20,6 +20,9 @@ jobs:
         run: |
           mkdir public
           mv wsl.ps1 public
+          mv user.sh public
+          mv apt.sh public
+          mv pacman.sh public
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3.0.1
