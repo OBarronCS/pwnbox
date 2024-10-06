@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5.0.0
+
+      - name: Checkout
+        uses: actions/checkout@v4.2.0
+
+      - name: Choose files to deploy
+        mkdir public
+        mv wsl.ps1 public
+
+      - name: Upload GitHub Pages Artifact
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: public
+
+  deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    needs: upload
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5
