@@ -66,22 +66,6 @@ pwnbox config set --use-slim
 pwnbox config set --use-full
 ```
 
-
-## Development
-### Manually build the image
-```sh
-# Base image
-docker build . --target base -t pwnbox
-# Optional build args:
-#   --build-arg FULL_BUILD=true
-
-# Image build for WSL
-docker build . --target wsl -t pwnbox
-
-# To use this local image with `pwnbox create`, run `pwnbox config set --image pwnbox`
-```
-
-
 ## Create WSL image from the container
 We can extract the root filesystem from the image and use it as a WSL distro! There's a [one line PowerShell command](#automated-install) that will do this for you!
 
@@ -126,6 +110,20 @@ iwr https://obarroncs.github.io/pwnbox/wsl.ps1 | iex
 
 The script is being hosted on `GitHub Pages` and can be found [here](https://github.com/OBarronCS/pwnbox/blob/main/wsl.ps1).
 
+
+## Development
+### Manually build the image
+```sh
+# Base image
+docker build . --target base -t pwnbox
+# Optional build args:
+#   --build-arg FULL_BUILD=true
+
+# Image build for WSL
+docker build . --target wsl -t pwnbox
+
+# To use this local image with `pwnbox create`, run `pwnbox config set --image pwnbox`
+```
 
 ### Notes on WSL + Docker Desktop on Windows
 
