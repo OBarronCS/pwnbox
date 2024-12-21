@@ -108,6 +108,24 @@ libbz2-dev libreadline-dev libsqlite3-dev \
 libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
 
+print_info "Installing PowerShell"
+###################################
+# Install pre-requisite packages.
+sudo apt-get install -y apt-transport-https software-properties-common
+# Get the version of Ubuntu
+source /etc/os-release
+# Download the Microsoft repository keys
+wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb
+# Register the Microsoft repository keys
+sudo dpkg -i packages-microsoft-prod.deb
+# Delete the Microsoft repository keys file
+rm packages-microsoft-prod.deb
+# Update the list of packages after we added packages.microsoft.com
+sudo apt-get update
+###################################
+# Install PowerShell
+sudo apt-get install -y powershell
+
 print_info "Installing docker"
 print_info "Installing Docker's official GPG key"
 
