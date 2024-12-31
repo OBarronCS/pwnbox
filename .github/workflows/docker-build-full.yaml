@@ -2,6 +2,9 @@ name: Publish Full Docker Image
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Publish Docker Images"]
+    types: [completed]
 
 env:
   REGISTRY: ghcr.io
