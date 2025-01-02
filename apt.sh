@@ -3,7 +3,7 @@
 # Generic install script to setup an Ubuntu VM/WSL
 
 # Usage:
-# ./init.sh [vmtools]
+# ./apt.sh [vmtools]
 # Include the optional parameter to install the tools specified
 
 # If it fails at any point, can rerun the script safely

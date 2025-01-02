@@ -26,7 +26,7 @@ RUN apt-get update -y \
     nmap \
     capstone-tool \
     ruby-dev \
-    openjdk-17-jdk \
+    openjdk-21-jdk \
     bat \
     iproute2 traceroute dnsutils \
     apt-transport-https software-properties-common \

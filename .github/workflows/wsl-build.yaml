@@ -55,5 +55,7 @@ jobs:
       with:
         files: |
           ./wsl_rootfs.tar.gz
-        draft: true
+        body: "Follow the steps [here](https://github.com/OBarronCS/pwnbox?tab=readme-ov-file#step-2---create-a-wsl-distro-with-the-tar-file) to use this .tar.gz file to create a WSL distro!"
+        name: "WSL root filesystem"
+        draft: false
         token: ${{ secrets.GITHUB_TOKEN }}
