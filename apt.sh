@@ -86,6 +86,12 @@ sudo apt install -y debuginfod
 sudo apt install -y libc6-dbg libc6-dbg:i386
 sudo apt install -y libstdc++6:i386
 
+sudo apt install -y pahole
+
+print_info "Installing iproute2 + dnsutils"
+sudo apt install -y iproute2
+sudo apt install -y dnsutils
+
 print_info "Installing command-not-found"
 sudo apt install -y command-not-found
 # Fill command-not-found database

@@ -23,6 +23,8 @@ jobs:
           mv user.sh public
           mv apt.sh public
           mv pacman.sh public
+          mv install_ghidra.sh public
+          mv aptvm.sh public
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3.0.1
