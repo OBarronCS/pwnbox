@@ -234,6 +234,7 @@ def enter(name: str):
             "exec",
             "-it",
             "-w", f"/mount/{rel}",
+            # "-u", 'root',
             f"{name}",
             "/bin/bash"
         ]

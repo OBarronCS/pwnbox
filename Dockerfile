@@ -73,6 +73,8 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
         libc6-powerpc-cross libc6-ppc64-cross \
     gcc-14-sparc64-linux-gnu g++-14-sparc64-linux-gnu \
         libc6-sparc64-cross \
+    gcc-14-loongarch64-linux-gnu \
+        libc6-loong64-cross \
     && rm -rf /var/lib/apt/lists/* ; \
     fi
 
@@ -100,7 +102,8 @@ RUN mkdir /etc/qemu-binfmt && \
     ln -s /usr/sparc64-linux-gnu/ /etc/qemu-binfmt/sparc64 && \
         ln -s /etc/qemu-binfmt/sparc64 /usr/gnemul/qemu-sparc64 && \
     ln -s /usr/riscv64-linux-gnu/ /etc/qemu-binfmt/riscv64 && \
-        ln -s /etc/qemu-binfmt/riscv64 /usr/gnemul/qemu-riscv64
+        ln -s /etc/qemu-binfmt/riscv64 /usr/gnemul/qemu-riscv64 && \
+    ln -s /usr/loongarch64-linux-gnu/ /usr/gnemul/qemu-loongarch64
 
 # ARG USER=pwn
 # RUN useradd --groups sudo --no-create-home --shell /bin/bash ${USER} \
