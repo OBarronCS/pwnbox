@@ -136,8 +136,6 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
 FROM base AS wsl
 COPY --chown=ubuntu install_ghidra.sh ./.install_ghidra.sh
 RUN ./.install_ghidra.sh
-COPY --chown=ubuntu ghidra_settings.py ./.ghidra_settings.py
-RUN ./.ghidra_settings.py
 
 COPY --chown=ubuntu wsl.sh ./.wsl.sh
 RUN sudo ./.wsl.sh

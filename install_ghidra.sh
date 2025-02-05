@@ -52,10 +52,6 @@ EOF
     print_info "Deleting ghidra_install.zip"
     rm ~/ghidra_install.zip
 
-    # Run ghidra to generate the config files
-    /opt/ghidra/support/analyzeHeadless
-
-
     if [[ "$XDG_CURRENT_DESKTOP" == *GNOME* ]]; then
         if which gsettings >/dev/null; then
             # /opt/ghidra/support/ghidra.ico appears corrupted in VM, so download the logo as a png

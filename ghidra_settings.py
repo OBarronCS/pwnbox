@@ -10,14 +10,18 @@ import os
 #  ./ghidra_settings.py [file_path_of_settings]
 #   If not passed, will attempt to find the file automatically
 
+
 file_path = ""
 
 # Get the file path of settings file
 if len(sys.argv) < 2:
     HOME_DIR = str(Path.home())
+    print(HOME_DIR)
 
     # settings_file_names = glob.glob(f"{HOME_DIR}/.ghidra/.ghidra_*_PUBLIC/tools/_code_browser.tcd")
     settings_file_names = glob.glob(f"{HOME_DIR}/.config/ghidra/ghidra*/tools/_code_browser.tcd")
+
+    os.system("ls -pla /home/ubuntu/.config/ghidra/ghidra*")
 
 
     if(len(settings_file_names) == 0):
