@@ -430,6 +430,17 @@ def list_command():
         stderr=subprocess.PIPE
     )
 
+    # result = subprocess.run(
+    #     [
+    #         "docker",
+    #         "ps",
+    #         "-a",
+    #         "--size=false",
+    #         "--format", "{{json .}}"
+    #     ],
+    #     stdout=subprocess.PIPE,
+    #     stderr=subprocess.PIPE
+    # )
 
     containers = [x.decode("utf-8") for x in result.stdout.split(b"\n")]
 

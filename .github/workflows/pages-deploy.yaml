@@ -24,6 +24,7 @@ jobs:
           mv apt.sh public
           mv pacman.sh public
           mv install_ghidra.sh public
+          mv ghidra_settings.py public
           mv aptvm.sh public
 
       - name: Upload GitHub Pages Artifact
