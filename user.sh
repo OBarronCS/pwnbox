@@ -186,6 +186,8 @@ if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
     # echo 'export PATH="$HOME/.local/share/gem/ruby/3.0.0/bin:$PATH"' >> ~/.bashrc
     echo 'eval "$(zoxide init bash)"' >> ~/.bashrc
     echo 'alias ossh="TERM=xterm-256color \\ssh"' >> ~/.bashrc
+    echo 'alias tmo="history -a; tmux"' >> ~/.bashrc
+    echo 'alias ipi="PWNLIB_NOTERM=1 PYTHONSTARTUP=~/.pythonrc.py python"' >> ~/.bashrc
 fi
 
 if ! grep -Fq 'set print object on' ~/.gdbinit; then
