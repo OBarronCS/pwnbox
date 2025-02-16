@@ -45,6 +45,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          pull: true
           push: true
           tags: |
             ${{ steps.repo_slug.outputs.result }}:latest
@@ -56,6 +57,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          pull: true
           push: true
           tags: |
             ${{ steps.repo_slug.outputs.result }}:wsl
