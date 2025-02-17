@@ -36,6 +36,7 @@ def main():
     create_parser = toplevel_parser.add_parser("create")
     create_parser.add_argument("name")
     create_parser.add_argument("--image", dest="image", default=None, required=False, help="Choose image")
+    create_parser.add_argument("-v", dest="volumes", nargs='*', default=[], action="extend", help="Add mounts")
 
     # Enter
     enter_parser = toplevel_parser.add_parser("enter")
@@ -84,7 +85,7 @@ def main():
 
 
     if args.command == "create":
-        create(args.name, args.image)
+        create(args.name, args.volumes, args.image)
     elif args.command == "enter":
         enter(args.name)
     elif args.command in {"remove","rm","kill"}:
@@ -141,7 +142,7 @@ def get_image_name(image: str | None) -> str:
         
 
 
-def create(name: str, image: str | None):
+def create(name: str, volumes: list[str], image: str | None):
 
     test = subprocess.run(
         [
@@ -162,6 +163,19 @@ def create(name: str, image: str | None):
 
     print(f"Creating pwnbox with image '{image}'")
 
+    extra_mounts: list[str] = []
+
+    for v in volumes:
+        try:
+            a,b = v.split(":",maxsplit=1)
+        except ValueError as e:
+            print("A mount requires a ':'")
+            sys.exit(1)
+
+        host_path = pathlib.Path(a).resolve()
+        
+        extra_mounts += ["-v",f"{host_path}:{b}"]
+
     hostname = f"pwnbox-{name}"
     result = subprocess.run(
         [
@@ -176,6 +190,7 @@ def create(name: str, image: str | None):
             "-d",
             "-w", "/mount/",
             "-v", f"{os.getcwd()}:/mount/",
+            *extra_mounts,
             "--name", f"{name}",
             image,
             "/bin/bash",
