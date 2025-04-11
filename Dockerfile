@@ -1,5 +1,4 @@
-# FROM ubuntu:24.04
-FROM dokken/ubuntu-24.04 AS base
+FROM ubuntu:25.04 AS base
 
 RUN apt-get update -y && apt-get install -y unminimize
 RUN yes | unminimize
@@ -7,28 +6,30 @@ RUN yes | unminimize
 RUN dpkg --add-architecture i386
 RUN apt-get update -y \
     && apt-get install -y \
+    linux-base \
     curl wget socat netcat-openbsd \
     manpages-posix-dev \
     man-db \
     git \
     zip unzip \
     tmux \
-    locales \
+    locales tzdata \
     gdb gdbserver gdb-multiarch debuginfod \
-    strace ltrace \
+    strace ltrace procps \
     pahole \
     sudo \
-    vim \
+    vim less \
     kitty-terminfo \
+    lsb-release \
     file \
     jq \
     p7zip-full \
-    nmap \
+    nmap tcpdump telnet \
     capstone-tool \
-    ruby-dev \
+    ruby-dev perl \
     openjdk-21-jdk \
     bat \
-    iproute2 iptables traceroute dnsutils \
+    iproute2 iptables traceroute dnsutils lsof net-tools \
     apt-transport-https apt-utils iputils-ping software-properties-common \
     steghide stegcracker john \
     libc6-dbg libc6-dbg:i386 libstdc++6:i386 \
@@ -38,18 +39,36 @@ RUN apt-get update -y \
     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
     autoconf automake libtool flex bison \
     cmake \
+    dbus cron dirmngr dmidecode gnupg kmod udev \
     && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update -y && \
+    apt-get install -y systemd && \
+    find /etc/systemd/system \
+	/lib/systemd/system \
+	-path '*.wants/*' \
+	\( -name '*getty*' \
+	-or -name '*apt-daily*' \
+	-or -name '*systemd-timesyncd*' \
+	-or -name '*systemd-logind*' \
+	-or -name '*systemd-vconsole-setup*' \
+	-or -name '*systemd-readahead*' \
+	-or -name '*udev*' \) \
+	-exec rm -v {} \; && \
+	systemctl set-default multi-user.target && \
+	systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount network.service
 
 SHELL ["/bin/bash", "-c"] 
 
-# Install PowerShell
-RUN source /etc/os-release \
-    && wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
-    && apt-get update \
-    && apt-get install -y powershell \
-    && rm -rf /var/lib/apt/lists/*
+# Install PowerShell - broken for 25.04 currently
+# # https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu
+# RUN source /etc/os-release \
+#     && wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb \
+#     && dpkg -i packages-microsoft-prod.deb \
+#     && rm packages-microsoft-prod.deb \
+#     && apt-get update \
+#     && apt-get install -y powershell \
+#     && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/sh", "-c"] 
 
@@ -60,31 +79,24 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
     apt-get update -y && apt-get install -y \
     llvm \
     qemu-system qemu-kvm qemu-user qemu-user-binfmt \
-    gcc-14-aarch64-linux-gnu g++-14-aarch64-linux-gnu \
+    gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
         libc6-arm64-cross libc6-dbg-arm64-cross libstdc++6-11-dbg-arm64-cross libstdc++-11-pic-arm64-cross \
-    gcc-14-arm-linux-gnueabihf g++-14-arm-linux-gnueabihf \
+    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
         libc6-armel-cross libc6-armhf-cross libc6-dbg-armhf-cross libstdc++6-11-dbg-armhf-cross libstdc++-11-pic-armhf-cross \
-    gcc-13-mips-linux-gnu g++-13-mips-linux-gnu \
+    gcc-mips-linux-gnu g++-mips-linux-gnu \
         libc6-mips-cross \
-    gcc-13-mips64-linux-gnuabi64 g++-13-mips64-linux-gnuabi64 \
+    gcc-mips64-linux-gnuabi64 g++-mips64-linux-gnuabi64 \
         libc6-mips64-cross \
-    gcc-14-riscv64-linux-gnu g++-14-riscv64-linux-gnu \
+    gcc-riscv64-linux-gnu g++-riscv64-linux-gnu \
         libc6-riscv64-cross \
-    gcc-14-powerpc-linux-gnu g++-14-powerpc-linux-gnu \
+    gcc-powerpc-linux-gnu g++-powerpc-linux-gnu \
         libc6-powerpc-cross libc6-ppc64-cross \
-    gcc-14-sparc64-linux-gnu g++-14-sparc64-linux-gnu \
+    gcc-sparc64-linux-gnu g++-sparc64-linux-gnu \
         libc6-sparc64-cross \
-    gcc-14-loongarch64-linux-gnu \
+    gcc-loongarch64-linux-gnu \
         libc6-loong64-cross \
     && rm -rf /var/lib/apt/lists/* ; \
     fi
-
-
-RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
-    locale-gen
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-ENV LANGUAGE=en_US:en
 
 RUN mkdir /etc/qemu-binfmt && \
     mkdir /usr/gnemul && \
@@ -105,6 +117,12 @@ RUN mkdir /etc/qemu-binfmt && \
     ln -s /usr/riscv64-linux-gnu/ /etc/qemu-binfmt/riscv64 && \
         ln -s /etc/qemu-binfmt/riscv64 /usr/gnemul/qemu-riscv64 && \
     ln -s /usr/loongarch64-linux-gnu/ /usr/gnemul/qemu-loongarch64
+
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANGUAGE=en_US:en
 
 # ARG USER=pwn
 # RUN useradd --groups sudo --no-create-home --shell /bin/bash ${USER} \
