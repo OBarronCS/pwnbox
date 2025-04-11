@@ -28,8 +28,8 @@ RUN apt-get update -y \
     ruby-dev \
     openjdk-21-jdk \
     bat \
-    iproute2 traceroute dnsutils \
-    apt-transport-https software-properties-common \
+    iproute2 iptables traceroute dnsutils \
+    apt-transport-https apt-utils iputils-ping software-properties-common \
     steghide stegcracker john \
     libc6-dbg libc6-dbg:i386 libstdc++6:i386 \
     libssl-dev liblzma-dev pkg-config patchelf \
