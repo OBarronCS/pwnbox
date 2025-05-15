@@ -51,7 +51,7 @@ if (-not $?){
 Write-Output "Creating a WSL distro with file: $out_file_name"
 Write-Output "Running the following command:"
 Write-Output ""
-Write-Output "wsl --import $distro_name "$HOME/wsl_managed_pwnbox_timestamp" $out_file_name 2>&1"
+Write-Output "wsl --import $distro_name "$HOME/wsl_managed_pwnbox_$timestamp" $out_file_name 2>&1"
 Write-Output ""
 Write-Output "This may take a moment"
 wsl --import $distro_name "$HOME/wsl_managed_pwnbox_$timestamp" $out_file_name 2>&1

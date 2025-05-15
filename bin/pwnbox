@@ -41,6 +41,8 @@ def main():
     # Enter
     enter_parser = toplevel_parser.add_parser("enter")
     enter_parser.add_argument("name")
+    enter_parser.add_argument("-u", dest="user",required=False,default=None)
+
 
     # Remove
     remove_parser = toplevel_parser.add_parser("remove",aliases=["rm","kill"])
@@ -87,7 +89,7 @@ def main():
     if args.command == "create":
         create(args.name, args.volumes, args.image)
     elif args.command == "enter":
-        enter(args.name)
+        enter(args.name, args.user)
     elif args.command in {"remove","rm","kill"}:
         remove(args.name)
     elif args.command in {"gdb","debug"}:
@@ -200,7 +202,7 @@ def create(name: str, volumes: list[str], image: str | None):
     enter(name)
 
 
-def enter(name: str):
+def enter(name: str, user: str | None):
 
     test = subprocess.run(
         [
@@ -243,13 +245,15 @@ def enter(name: str):
     except ValueError:
         pass
 
+    user_cli_flags = [] if not user else ["-u", user]
+
     result = subprocess.run(
         [
             "docker",
             "exec",
             "-it",
             "-w", f"/mount/{rel}",
-            # "-u", 'root',
+            *user_cli_flags,
             f"{name}",
             "/bin/bash"
         ]
