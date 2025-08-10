@@ -442,57 +442,56 @@ def list_command():
         [
             "docker",
             "ps",
-            "-a",
-            "-q",
+            "--all",
+            "--format", "json",
+            "--no-trunc"
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
 
-    # result = subprocess.run(
-    #     [
-    #         "docker",
-    #         "ps",
-    #         "-a",
-    #         "--size=false",
-    #         "--format", "{{json .}}"
-    #     ],
-    #     stdout=subprocess.PIPE,
-    #     stderr=subprocess.PIPE
-    # )
-
-    containers = [x.decode("utf-8") for x in result.stdout.split(b"\n")]
+    containers = [json.loads(x) for x in result.stdout.split(b"\n") if x]
 
     filter_command: list[str] = []
-    for id in containers:
-        # Empty lines
-        if not id:
-            continue
+    for info in containers:
+        container_id = info["ID"]
 
-        result = subprocess.run(
-            [
-                "docker",
-                "inspect",
-                str(id)
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-    
-        docker_info = json.loads(result.stdout)
-        mounts = docker_info[0]["Mounts"]
+        mounts = info["Mounts"]
         if not mounts:
             continue
+        
+        is_pwnbox = False
+        PWNBOX_LABEL = "An environment for CTF and reverse-engineering!"
+        if PWNBOX_LABEL in info["Labels"]:
+            is_pwnbox = True
+        else:    
+            # Have at least one mount
+            if mounts:
+                result = subprocess.run(
+                    [
+                        "docker",
+                        "inspect",
+                        str(container_id)
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
 
-        mount_info = mounts[0]
-        destination = mount_info["Destination"]
+                docker_info = json.loads(result.stdout)
+                mounts = docker_info[0]["Mounts"]
+                if not mounts:
+                    continue
 
-        network_mode = docker_info[0]["HostConfig"]["NetworkMode"]
+                destination = mounts[0]["Destination"]
 
-        if destination == "/mount" and network_mode == "host":
-            filter_command += ["--filter", f'id={id}']
+                network_mode = docker_info[0]["HostConfig"]["NetworkMode"]
 
-    
+                if destination == "/mount" and network_mode == "host":
+                    is_pwnbox = True
+
+        if is_pwnbox:
+            filter_command += ["--filter", f'id={container_id}']
+
     if filter_command:
         result = subprocess.run(
             [
