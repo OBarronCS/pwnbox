@@ -46,6 +46,32 @@ else
     print_info "fzf already installed"
 fi
 
+
+INSTALL_MISE="N"
+if [[ $INSTALL_MISE =~ ^[Yy] ]]
+then
+    print_info "Installing mise"
+    if ! command -v uv &> /dev/null; then
+        print_info "Installing mise"
+        curl https://mise.run | sh
+        echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+    else
+        print "Mise already installed"
+    fi
+fi
+
+INSTALL_UV="Y"
+if [[ $INSTALL_UV =~ ^[Yy] ]]
+then
+    print_info "Installing uv"
+    if ! command -v uv &> /dev/null; then
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        # uv python install 3.13 --default
+    else
+        print_info "uv already installed!"
+    fi
+fi
+
 INSTALL_PYENV="Y"
 if [[ $INSTALL_PYENV =~ ^[Yy] ]]
 then
@@ -63,13 +89,32 @@ then
         eval "$(pyenv init -)"
         # eval "$(pyenv virtualenv-init -)"
 
-        print_info "Downloading python 3.11 with pyenv. This may take a moment (it has no progress indicator)"
+        print_info "Downloading python 3.11 with pyenv. This may take a moment"
         pyenv install 3.11 --verbose
         pyenv global 3.11
     else
         print_info "pyenv already installed"
         export PATH="$HOME/.pyenv/bin:$PATH"
         eval "$(pyenv init -)"
+    fi
+fi
+
+INSTALL_NVM="Y"
+if [[ $INSTALL_NVM =~ ^[Yy] ]]
+then
+    print_info "Install node version manager (nvm)"
+    if [ ! -d "$HOME/.nvm" ]; then
+        # Will automatically attempt to update in case it's already installed
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+        # Makes nvm work without restarting shell
+        export NVM_DIR="$HOME/.nvm"
+        source ~/.nvm/nvm.sh
+
+        print_info "Installing latest version of node"
+        nvm install node
+    else
+        print_info "nvm is already installed"
     fi
 fi
 
@@ -134,31 +179,6 @@ fi
 print_info "Installing seccomp-tools and one_gadget with ruby"
 sudo gem install seccomp-tools
 sudo gem install one_gadget
-
-
-
-print_info "Install node version manager (nvm)"
-if [ ! -d "$HOME/.nvm" ]; then
-    # Will automatically attempt to update in case it's already installed
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-
-    # Makes nvm work without restarting shell
-    export NVM_DIR="$HOME/.nvm"
-    source ~/.nvm/nvm.sh
-
-    print_info "Installing latest version of node"
-    nvm install node
-else
-    print_info "nvm is already installed"
-fi
-
-
-# print_info "Installion bun.js"
-# if [ ! -d "$HOME/.bun" ]; then
-#     curl -fsSL https://bun.sh/install | bash
-# else
-#     print_info "Bun is already installed"
-# fi
 
 
 print_info "Installing .dotfiles"

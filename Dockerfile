@@ -161,4 +161,4 @@ RUN sudo ./.wsl.sh
 
 
 LABEL description="An environment for CTF and reverse-engineering!"
-
+LABEL PWNBOX_USER_ID=1000

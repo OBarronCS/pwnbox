@@ -24,6 +24,9 @@ CONFIG_FILE_PATH = Path.home() / CONFIG_FILE_NAME
 
 BASE_DIRECTORY = Path(os.path.dirname(os.path.abspath(__file__))).parent.absolute()
 
+PWNBOX_LABEL = "pwnbox"
+CONTAINER_RUNTIME = ["sudo","podman"]
+
 def main():
 
     parser = argparse.ArgumentParser(
@@ -35,18 +38,20 @@ def main():
     # Create
     create_parser = toplevel_parser.add_parser("create")
     create_parser.add_argument("name")
-    create_parser.add_argument("--image", dest="image", default=None, required=False, help="Choose image")
+    create_parser.add_argument("--image", "-i", dest="image", default=None, required=False, help="Choose image")
     create_parser.add_argument("-v", dest="volumes", nargs='*', default=[], action="extend", help="Add mounts")
+    create_parser.add_argument("--shell", dest="shell",required=False,default=None)
+    create_parser.add_argument("-r", dest="only_root_user",action="store_true", required=False,default=False)
 
     # Enter
     enter_parser = toplevel_parser.add_parser("enter")
     enter_parser.add_argument("name")
     enter_parser.add_argument("-u", dest="user",required=False,default=None)
-
+    enter_parser.add_argument("--shell", dest="shell",required=False,default=None)
 
     # Remove
     remove_parser = toplevel_parser.add_parser("remove",aliases=["rm","kill"])
-    remove_parser.add_argument("name")
+    remove_parser.add_argument("names", nargs="+")
 
     # Debug
     remove_parser = toplevel_parser.add_parser("gdb",aliases=["debug"])
@@ -55,6 +60,8 @@ def main():
     # Temp
     remove_parser = toplevel_parser.add_parser("temp",aliases=["tmp"])
     remove_parser.add_argument("--image", dest="image", default=None, required=False, help="Choose image")
+    remove_parser.add_argument("--shell", dest="shell",required=False,default=None)
+    remove_parser.add_argument("-r", dest="only_root_user",action="store_true", required=False,default=False)
 
     # Pull
     pull_parser = toplevel_parser.add_parser("pull")
@@ -87,15 +94,15 @@ def main():
 
 
     if args.command == "create":
-        create(args.name, args.volumes, args.image)
+        create(args.name, args.volumes, args.image, args.shell, args.only_root_user)
     elif args.command == "enter":
-        enter(args.name, args.user)
+        enter(args.name, args.user, args.shell)
     elif args.command in {"remove","rm","kill"}:
-        remove(args.name)
+        remove(args.names)
     elif args.command in {"gdb","debug"}:
         debug_command(args.name)
     elif args.command in {"temp","tmp"}:
-        temp(args.image)
+        temp(args.image, args.shell, args.only_root_user)
     elif args.command in {"list","ls"}:
         list_command()
     elif args.command == "pull":
@@ -124,31 +131,103 @@ def get_image_name(image: str | None) -> str:
                 return image
         except:
             # Use the default name, in this case
-            image = DEFAULT_IMAGE_AND_TAG
-            # test = subprocess.run(
-            #     [
-            #         "docker",
-            #         "image",
-            #         "inspect",
-            #         f"{image}"
-            #     ],
-            #     stdout=subprocess.PIPE,
-            #     stderr=subprocess.PIPE,
-            # )
-
-            # if test.returncode != 0:
-            #     print(f"Pulling image '{image}'")
-            #     pull()
-            
-            return image
-        
+            return DEFAULT_IMAGE_AND_TAG
 
 
-def create(name: str, volumes: list[str], image: str | None):
+def determine_user_id_gid(image: str) -> tuple[int,int]:
 
     test = subprocess.run(
         [
-            "docker",
+            *CONTAINER_RUNTIME,
+            "image",
+            "inspect",
+            f"{image}"
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    if test.returncode != 0:
+        print(f"Pulling image '{image}'")
+
+        subprocess.run(
+            [
+                *CONTAINER_RUNTIME,
+                "pull",
+                f"{image}"
+            ]
+        )
+
+        test = subprocess.run(
+            [
+                *CONTAINER_RUNTIME,
+                "image",
+                "inspect",
+                f"{image}"
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        
+
+    container = json.loads(test.stdout)
+
+    if len(container) == 1:
+        labels = container[0]["Labels"]
+
+        if labels:
+            user_id = labels.get("PWNBOX_USER_ID", None)
+            if user_id is not None:
+                return user_id, user_id
+
+        print("PWNBOX_USER_ID label not found")
+
+    # User ID not specified in an image label, determine it automatically
+
+    test = subprocess.run(
+        [
+            *CONTAINER_RUNTIME,
+            "run",
+            "--rm",
+            "--entrypoint", "cat",
+            f"{image}",
+            "/etc/passwd"
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    
+    if test.returncode == 0:
+        lines = test.stdout.splitlines()
+        
+        user_info: list[tuple[str,int,int]] = []
+
+        for line in lines:
+            text = line.decode("utf-8")
+            username, x, uid, gid, *_ = text.split(":")
+            user_info.append((username, int(uid), int(gid)))
+
+        user_info = list(filter(
+            lambda x: x[1] >= 1000 and x[1] < 2000,
+            user_info
+        ))
+
+        user_info.sort(key=lambda x: x[1])
+
+        if len(user_info) > 0:
+            auto_detected_user: tuple[str,int,int] = user_info[-1]
+            username, uid, gid = auto_detected_user
+            return uid, gid
+        else:
+            print("No default distro user found")
+
+    return None, None
+
+def create(name: str, volumes: list[str], image: str | None, shell: str | None, only_root_user: bool):
+
+    test = subprocess.run(
+        [
+            *CONTAINER_RUNTIME,
             "container",
             "inspect",
             f"{name}"
@@ -178,35 +257,140 @@ def create(name: str, volumes: list[str], image: str | None):
         
         extra_mounts += ["-v",f"{host_path}:{b}"]
 
+    create_podman(name, extra_mounts, image, only_root_user)
+    # hostname = f"pwnbox-{name}"
+    # result = subprocess.run(
+    #     [
+    #         "docker",
+    #         "run",
+    #         "--label", "pwnbox=true",
+    #         "--privileged",
+    #         "-it",
+    #         "--network", "host",
+    #         "--hostname", hostname,
+    #         "--add-host",f"{hostname}=127.0.0.1",
+    #         "-u", f"{os.getuid()}:{os.getgid()}",
+    #         "-d",
+    #         "-w", "/mount/",
+    #         "-v", f"{os.getcwd()}:/mount/",
+    #         *extra_mounts,
+    #         "--name", f"{name}",
+    #         image,
+    #         "/bin/bash",
+    #     ]
+    # )
+
+    enter(name, shell=shell)
+
+def create_podman(name: str, extra_mounts: list[str], image: str, only_root_user: bool):
+
     hostname = f"pwnbox-{name}"
+
+    host_user_id = os.getuid()
+    host_user_gid = os.getgid()
+
+    DEFAULT_USER_ID = 1000
+
+    created_user = False
+    
+    if not only_root_user:
+
+        container_user_id, container_user_gid = determine_user_id_gid(image)
+
+        if container_user_id is None:
+            created_user = True
+            container_user_id = DEFAULT_USER_ID
+            container_user_gid = DEFAULT_USER_ID
+
+        idmap_parameters = f"{host_user_id}-{container_user_id}-1#0-0-1;gids={host_user_gid}-{container_user_gid}-1#0-0-1"
+    else:
+        container_user_id = 0
+        container_user_gid = 0
+        # Only map root user on the bind mount
+        # Map a bunch of ID's so that the mapping exists over the boundary
+        idmap_parameters = "0-0-2000;gids=0-0-2000"
+
     result = subprocess.run(
         [
-            "docker",
+            *CONTAINER_RUNTIME,
             "run",
+            "--label", "pwnbox=true",
             "--privileged",
             "-it",
             "--network", "host",
             "--hostname", hostname,
-            "--add-host",f"{hostname}=127.0.0.1",
-            "-u", f"{os.getuid()}:{os.getgid()}",
+            "--add-host",f"{hostname}:127.0.0.1",
+            "-u", f"{container_user_id}:{container_user_gid}",
+            "--passwd=false", # podman by default writes user id to /etc/passwd
             "-d",
             "-w", "/mount/",
-            "-v", f"{os.getcwd()}:/mount/",
+            "--mount",f"type=bind,source={os.getcwd()},destination=/mount/,idmap=uids={idmap_parameters}",
             *extra_mounts,
             "--name", f"{name}",
             image,
-            "/bin/bash",
+            # "/bin/bash",
         ]
     )
 
-    enter(name)
+    # Default user could not be found nor detected, so we create it
+    if created_user:
+        USERNAME = "user"
+        container_create_user(name, DEFAULT_USER_ID, USERNAME)
+
+def container_create_user(container_name: str, user_id: int, username: str):
+        print(f"Creating user: '{username}' with UID {user_id}")
+        
+        # We check for useradd first because sometimes adduser just is a symlink to it
+        user_command = f"""
+
+SHELL=/bin/bash
+if ! command -v /bin/bash >/dev/null 2>&1;
+then
+    SHELL=/bin/sh
+fi
+
+if command -v useradd >/dev/null 2>&1;
+then
+    useradd --uid {user_id} --shell $SHELL {username}
+elif command -v adduser >/dev/null 2>&1;
+then
+    adduser --gecos "" -D -u {user_id} {username}
+fi
+
+if [ -f "/etc/sudoers" ]; then
+    echo "{username} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/{username} 
+    chmod 0440 /etc/sudoers.d/{username}
+fi
+
+if getent group sudo >/dev/null 2>&1; then
+    usermod -a -G sudo {username}
+fi
+
+if getent group wheel >/dev/null 2>&1; then
+    usermod -a -G wheel {username}
+fi
+
+"""
+        result = subprocess.run(
+            [
+                *CONTAINER_RUNTIME,
+                "exec",
+                "-u", "root",
+                f"{container_name}",
+                "/bin/sh",
+                "-c", user_command
+            ]
+        )
 
 
-def enter(name: str, user: str | None):
+def enter(name: str, user: str | None = None, shell: str | None = None):
+
+    if not shell:
+        shell = "/bin/bash"
 
     test = subprocess.run(
         [
-            "docker",
+            *CONTAINER_RUNTIME,
             "container",
             "inspect",
             f"{name}"
@@ -226,7 +410,7 @@ def enter(name: str, user: str | None):
     if not running:
         subprocess.run(
             [
-                "docker",
+                *CONTAINER_RUNTIME,
                 "container",
                 "start",
                 f"{name}"
@@ -249,60 +433,132 @@ def enter(name: str, user: str | None):
 
     result = subprocess.run(
         [
-            "docker",
+            *CONTAINER_RUNTIME,
             "exec",
             "-it",
             "-w", f"/mount/{rel}",
             *user_cli_flags,
             f"{name}",
-            "/bin/bash"
+            shell
         ]
     )
 
-def remove(name: str):
-    print(f"Deleting container '{name}'")
+def remove(names: list[str]):
+    for name in names:
+        print(f"Deleting container '{name}'")
 
-    result = subprocess.run(
-        [
-            "docker",
-            "kill",
-            f"{name}",
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    
-    if b" is not running" in result.stderr:
-        pass
+        result = subprocess.run(
+            [
+                *CONTAINER_RUNTIME,
+                "kill",
+                f"{name}",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        
+        if b" is not running" in result.stderr:
+            pass
 
-    result = subprocess.run(
-        [
-            "docker",
-            "container",
-            "rm",
-            f"{name}",
-        ]
-    )
+        result = subprocess.run(
+            [
+                *CONTAINER_RUNTIME,
+                "container",
+                "rm",
+                f"{name}",
+            ]
+        )
 
 
-def temp(image: str | None):
+# TODO
+def temp(image: str | None, shell: str | None, only_root_user: bool):
+
+    if not shell:
+        shell = "/bin/bash"
+
     image = get_image_name(image)
     hostname = "tmp-pwnbox"
+
+
+    host_user_id = os.getuid()
+    host_user_gid = os.getgid()
+
+    DEFAULT_USER_ID = 1000
+
+    created_user = False
+    
+    if not only_root_user:
+
+        container_user_id, container_user_gid = determine_user_id_gid(image)
+
+        if container_user_id is None:
+            created_user = True
+            container_user_id = DEFAULT_USER_ID
+            container_user_gid = DEFAULT_USER_ID
+
+        idmap_parameters = f"{host_user_id}-{container_user_id}-1#0-0-1;gids={host_user_gid}-{container_user_gid}-1#0-0-1"
+    else:
+        container_user_id = 0
+        container_user_gid = 0
+        # Only map root user on the bind mount
+        # Map a bunch of ID's so that the mapping exists over the boundary
+        idmap_parameters = "0-0-2000;gids=0-0-2000"
+
+    
+    user_id, username = DEFAULT_USER_ID, "user"
+
+    if only_root_user:
+        user_command = shell
+    else:
+        user_command = f"""
+
+SHELL=/bin/bash
+if ! command -v /bin/bash >/dev/null 2>&1;
+then
+    SHELL=/bin/sh
+fi
+
+if command -v useradd >/dev/null 2>&1;
+then
+    useradd --uid {user_id} --shell $SHELL {username}
+elif command -v adduser >/dev/null 2>&1;
+then
+    adduser --gecos "" -D -u {user_id} {username}
+fi
+
+if [ -f "/etc/sudoers" ]; then
+    echo "{username} ALL=(ALL) NOPASSWD:ALL" >/etc/sudoers.d/{username} 
+    chmod 0440 /etc/sudoers.d/{username}
+fi
+
+if getent group sudo >/dev/null 2>&1; then
+    usermod -a -G sudo {username}
+fi
+
+if getent group wheel >/dev/null 2>&1; then
+    usermod -a -G wheel {username}
+fi
+
+exec su -s {shell} - {username}
+"""
+    
     result = subprocess.run(
         [
-            "docker",
+            *CONTAINER_RUNTIME,
             "run",
+            "--label", "pwnbox=true",
             "--privileged",
             "-it",
             "--rm",
             "--network", "host",
             "--hostname", hostname,
-            "--add-host",f"{hostname}=127.0.0.1",
-            "-u", f"{os.getuid()}:{os.getgid()}",
+            "--add-host",f"{hostname}:127.0.0.1",
+            "-u", f"0:0",
             "-w", "/mount/",
-            "-v", f"{os.getcwd()}:/mount/",
+            "--mount",f"type=bind,source={os.getcwd()},destination=/mount/,idmap=uids={idmap_parameters}",
             image,
-            "/bin/bash",
+            "/bin/sh",
+            "-c", user_command
         ]
     )
 
@@ -312,7 +568,7 @@ def pull():
     if current_image.endswith("full"):
         subprocess.run(
             [
-                "docker",
+                *CONTAINER_RUNTIME,
                 "pull",
                 f"{DEFAULT_IMAGE}:full"
             ]
@@ -320,7 +576,7 @@ def pull():
     else:
         subprocess.run(
             [
-                "docker",
+                *CONTAINER_RUNTIME,
                 "pull",
                 f"{DEFAULT_IMAGE}:latest"
             ]
@@ -344,6 +600,8 @@ def config(args):
             config.add_section("config")
         except configparser.DuplicateSectionError:
             pass
+
+        image_to_set: str|None = None
 
         if use_slim:
             config["config"]["image"] = f"{DEFAULT_IMAGE}"
@@ -431,6 +689,15 @@ def debug_command(name: str):
     # os.system("tmux splitw -F '#{pane_id}' -P " + f"'gdb -q '")
 
 def list_command():
+    if "docker" in CONTAINER_RUNTIME:
+        list_command_docker()
+    else:
+        list_command_podman()
+
+def list_command_podman():
+    # Docker + podman have different output formats for ps
+    # Podman is a json list
+    # Docker is newline-delimited json objects
 
     # List all containers started with this script
     # We need to do some simple detection
@@ -440,7 +707,53 @@ def list_command():
     # Maybe the /mount folder?
     result = subprocess.run(
         [
-            "docker",
+            *CONTAINER_RUNTIME,
+            "ps",
+            "--all",
+            "--format", "json",
+            "--no-trunc"
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    containers = json.loads(result.stdout)
+
+    filter_command: list[str] = []
+    for info in containers:
+        container_id = info["Id"]
+
+        is_pwnbox = False
+        if PWNBOX_LABEL in info["Labels"]:
+            is_pwnbox = True
+
+        if is_pwnbox:
+            filter_command += ["--filter", f'id={container_id}']
+
+    if filter_command:
+        result = subprocess.run(
+            [
+                *CONTAINER_RUNTIME,
+                "ps",
+                "-a",
+            ] + filter_command,
+        )
+        
+def list_command_docker():
+    
+    # Docker + podman have different output formats for ps
+    # Podman is a json list
+    # Docker is newline-delimited json objects
+
+    # List all containers started with this script
+    # We need to do some simple detection
+    # docker inspect --format '{{.Name}} {{.Config.Image}}'
+    # Also can do a check that a mount or something exists
+    # Find some metric to read
+    # Maybe the /mount folder?
+    result = subprocess.run(
+        [
+            *CONTAINER_RUNTIME,
             "ps",
             "--all",
             "--format", "json",
@@ -461,33 +774,8 @@ def list_command():
             continue
         
         is_pwnbox = False
-        PWNBOX_LABEL = "An environment for CTF and reverse-engineering!"
         if PWNBOX_LABEL in info["Labels"]:
             is_pwnbox = True
-        else:    
-            # Have at least one mount
-            if mounts:
-                result = subprocess.run(
-                    [
-                        "docker",
-                        "inspect",
-                        str(container_id)
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-
-                docker_info = json.loads(result.stdout)
-                mounts = docker_info[0]["Mounts"]
-                if not mounts:
-                    continue
-
-                destination = mounts[0]["Destination"]
-
-                network_mode = docker_info[0]["HostConfig"]["NetworkMode"]
-
-                if destination == "/mount" and network_mode == "host":
-                    is_pwnbox = True
 
         if is_pwnbox:
             filter_command += ["--filter", f'id={container_id}']
