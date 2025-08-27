@@ -485,16 +485,17 @@ def temp(image: str | None, shell: str | None, only_root_user: bool):
 
     DEFAULT_USER_ID = 1000
 
-    created_user = False
+    user_exists = False
     
     if not only_root_user:
 
         container_user_id, container_user_gid = determine_user_id_gid(image)
 
         if container_user_id is None:
-            created_user = True
             container_user_id = DEFAULT_USER_ID
             container_user_gid = DEFAULT_USER_ID
+        else:
+            user_exists = True
 
         idmap_parameters = f"{host_user_id}-{container_user_id}-1#0-0-1;gids={host_user_gid}-{container_user_gid}-1#0-0-1"
     else:
@@ -505,11 +506,15 @@ def temp(image: str | None, shell: str | None, only_root_user: bool):
         idmap_parameters = "0-0-2000;gids=0-0-2000"
 
     
-    user_id, username = DEFAULT_USER_ID, "user"
+    command_run_user_id = 0
+    if user_exists:
+        command_run_user_id = container_user_id
 
-    if only_root_user:
+    if user_exists or only_root_user:
         user_command = shell
     else:
+        user_id, username = DEFAULT_USER_ID, "user"
+
         user_command = f"""
 
 SHELL=/bin/bash
@@ -553,7 +558,7 @@ exec su -s {shell} - {username}
             "--network", "host",
             "--hostname", hostname,
             "--add-host",f"{hostname}:127.0.0.1",
-            "-u", f"0:0",
+            "-u", f"{command_run_user_id}:{command_run_user_id}",
             "-w", "/mount/",
             "--mount",f"type=bind,source={os.getcwd()},destination=/mount/,idmap=uids={idmap_parameters}",
             image,
