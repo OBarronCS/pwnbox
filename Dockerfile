@@ -151,6 +151,10 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
         ./.user.sh server noextra; \
     fi
 
+LABEL description="An environment for CTF and reverse-engineering!"
+LABEL PWNBOX_USER_ID=1000
+LABEL SEABOX_USER_ID=1000
+
 # In the WSL build, include ghidra
 FROM base AS wsl
 COPY --chown=ubuntu install_ghidra.sh ./.install_ghidra.sh
@@ -159,6 +163,6 @@ RUN ./.install_ghidra.sh
 COPY --chown=ubuntu wsl.sh ./.wsl.sh
 RUN sudo ./.wsl.sh
 
-
 LABEL description="An environment for CTF and reverse-engineering!"
 LABEL PWNBOX_USER_ID=1000
+LABEL SEABOX_USER_ID=1000
