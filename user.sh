@@ -238,7 +238,9 @@ fi
 
 print_info "Installing zoxide"
 if ! command -v zoxide &> /dev/null; then
-    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    # curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    # The curl install method hits rate limit on GitHub API
+    cargo install zoxide --locked
 else
     print_info "Zoxide already installed!"
 fi
