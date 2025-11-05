@@ -128,8 +128,8 @@ pip install ROPgadget
 print_info "Installing z3"
 pip install z3-solver
 
-print_info "Installing Keystone"
-pip install keystone-engine
+# print_info "Installing Keystone"
+# pip install keystone-engine
 
 print_info "Installing my fork of pwndbg"
 if [ ! -d "$HOME/pwndbg" ]; then
@@ -201,7 +201,7 @@ if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
     printf 'if [ -f /run/.containerenv  ] || [ -f /run/.toolboxenv ] || [ -f /.dockerenv ];\nthen\n    PS1="🧊 $PS1";\nfi\n' >> ~/.bashrc
     echo "alias gdb=\"gdb -q\"" >> ~/.bashrc
     echo "export EDITOR=vim" >> ~/.bashrc
-    echo 'export PATH="$PATH:/$HOME/ctfsetup/bin"' >> ~/.bashrc
+    echo 'export PATH="$PATH:$HOME/ctfsetup/bin"' >> ~/.bashrc
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
     # echo 'export PATH="$HOME/.local/share/gem/ruby/3.0.0/bin:$PATH"' >> ~/.bashrc
     echo 'eval "$(zoxide init bash)"' >> ~/.bashrc

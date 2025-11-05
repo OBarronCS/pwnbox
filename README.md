@@ -1,97 +1,42 @@
 # pwnbox
 
-This is wrapper around various `Podman` commands to create a Linux environment useful for CTF. `pwnbox` will create a container that is setup with many tools, is run with `--privileged` to enable certain behaviors (namely GDB changing ASLR settings), and `network` mode is set to `host` for easy ability to run networked programs. Additionally, the current working directory will be mounted to `/mount` inside the container, letting you share files with the host.
+This contains various scripts to setup a Linux environment useful for CTF. A Docker image is also built - this is a great pre-built image to use with [Seabox](https://github.com/OBarronCS/seabox)! A variant for `wsl` is also built - the [filesystem can be exported and used to install a `wsl` distro](#create-wsl-image-from-the-container)!
 
-The default container image that `pwnbox` will use is built from the `Dockerfile` in this repo. A pre-built version can be found at `ghcr.io/obarroncs/pwnbox`. There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB. By default, the normal image is used. See notes below to change which image is used.
-
-A variant for `wsl` is also built - the [filesystem can be exported and used to install a `wsl` distro](#create-wsl-image-from-the-container)!
-
-The tool uses Podman's [idmapped file mounts feature](https://github.com/containers/podman/issues/10374) to efficiently allow the "container user" to access mounted host files as if it had the "host user" id. This makes it so the "container user" maps to the "host user" when accessing and modifying mounted files. This requires rootful Podman (which also provides the container other capabilities such as binding ports less than 1024), which is invoked with `sudo podman`. This causes most `pwnbox` commands to prompt for sudo password.
-
-> Docker [doesn't currently support](https://github.com/moby/moby/issues/2259) idmapped bind mounts, which is necessary for allow the user inside the container to access files as if it had the same ID as the user outside the container.
-
-## Install
-Clone this repository and add the `bin` folder to your path!
-```sh
-# This will clone the repo to the ~/pwnbox folder. You can change this location, but make sure to set the PATH variable accordingly.
-git clone https://github.com/OBarronCS/pwnbox.git ~/pwnbox
-```
-#### bash
-```sh
-echo 'export PATH="$HOME/pwnbox/bin:$PATH"' >> ~/.bashrc
-```
-#### zsh
-```sh
-echo 'export PATH="$HOME/pwnbox/bin:$PATH"' >> ~/.zshrc
-```
-
-## Usage
-
-### Create a pwnbox
-This command will create a container with a given name - `ctf` in this case
-```sh
-pwnbox create ctf [--image IMAGE_NAME] [--shell SHELL] [-r]
-# --image/-i: override the use of the default image included in this repo
-# --shell: specify user shell
-# -r: Do not create a new user in the container - just use the root user inside the container. This is useful when using images that don't have `sudo` or `su` provided to escalate privileges or you just want to be the root user.
-```
-
-### Enter an existing pwnbox
-```sh
-pwnbox enter ctf
-
-# Specify a shell
-pwnbox enter ctf --shell sh
-
-# Specify a user
-pwnbox enter ctf --user root
-```
-
-### Other
-```sh
-# List all pwnboxes
-pwnbox ls
-
-# Delete a pwnbox
-pwnbox rm pwnbox-name
-
-# Create a temporary instance - this will be removed once the terminal session ends
-pwnbox tmp
-
-Examples:
-    pwnbox tmp
-    pwnbox tmp --image busybox --shell /bin/sh -r
-
-# Update - this simply runs `git pull` for the repo
-pwnbox update
-
-# Pull the latest version of the pwnbox image from the GitHub Container Registry
-pwnbox pull
-```
-
-### Config
-```sh
-# Print the current config
-pwnbox config show
-
-# Change the default image (the one used on pwnbox create)
-pwnbox config set --image IMAGE
-# Set the default image to the 5GB `pwnbox` image
-pwnbox config set --use-slim
-# Set the default image to the 15GB image with cross-compilers
-pwnbox config set --use-full
-```
+The pre-built Docker image created from the `Dockerfile` in this repo can be found at `ghcr.io/obarroncs/pwnbox`. There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB.
 
 ## Create WSL image from the container
-We can extract the root filesystem from the image and use it as a WSL distro! There's a [one line PowerShell command](#automated-install) that will do this for you!
+We can extract the root filesystem from the container image and use it as a WSL distro!
 
-To do it manually, you can head to the [releases page](https://github.com/OBarronCS/pwnbox/releases) to grab the files (the file name ends in `tar.gz`) and go to step 2 below. To build and extract the filesystem locally, start at step 1.
+### Automated install
+You can use this one-line PowerShell command to download the latest `.tar.gz` file from GitHub releases and install it as a distro on WSL. 
+
+```powershell
+# The downloaded file will go into PowerShell's current directory
+cd $HOME/Downloads
+# This is the PowerShell equivalent of "curl | bash"
+iwr https://obarroncs.github.io/pwnbox/wsl.ps1 | iex
+```
+
+The script is being hosted on `GitHub Pages` through this repo and can be found [here](https://github.com/OBarronCS/pwnbox/blob/main/wsl.ps1).
+
+### Manual
+Alternatively, you can manually build the image locally, prepare it, and install it as a distro.
+
+You can skip step 1 (building the image locally) by heading to the [releases page](https://github.com/OBarronCS/pwnbox/releases) to grab the files (the file name ends in `tar.gz`) and go straight to step 2 below. To build and extract the filesystem locally, start at step 1.
 
 ### Step 1 - extract the root filesystem
 ```powershell
+# Build the image (make sure the repo is cloned)
+docker build . -t pwnbox
+
+# Create a temporary container with the image
 docker create --name wsl-temp pwnbox
-# This will take multiple minutes, and it has no progress meter
+
+# Extract the root filesystem.
+# This will take multiple minutes, and it has no progress meter.
 docker export wsl-temp -o wsl_rootfs.tar
+
+# Remove the temporary container
 docker rm wsl-temp
 
 # Optionally, gzip the tar file to create a compressed archive for sharing. In testing, this has reduced the size of the tarball to a third of the original size.
@@ -114,22 +59,10 @@ wsl -d pwnbox
 # pwnbox is automatically added to the Windows Terminal profile
 ```
 
-### Automated install
-Alternatively, you can use this handy one-liner to run a script to do all of these steps for you! It will download the latest `.tar.gz` file from GitHub releases and install it as a distro on WSL. 
-
-```powershell
-# The downloaded file will go into PowerShell's current directory
-cd $HOME/Downloads
-# This is the PowerShell equivalent of "curl | bash"
-iwr https://obarroncs.github.io/pwnbox/wsl.ps1 | iex
-```
-
-The script is being hosted on `GitHub Pages` and can be found [here](https://github.com/OBarronCS/pwnbox/blob/main/wsl.ps1).
-
-
 ## Development
 ### Manually build the image
 ```sh
+# You can swap podman with docker below:
 # Base image
 sudo podman build . --target base -t pwnbox
 # Optional build args:
