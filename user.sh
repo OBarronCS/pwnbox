@@ -3,7 +3,7 @@
 # This files contains scripts that install programs regardless of the host operating system
 # Arguments (add in no particular order)
 # - `server` - whether to install some GUI apps, like Ghidra
-# - `noextra` - disable installing some extra dev apps
+# - `extra` - enable installing some extra dev apps
 
 # Exit when any command fails
 set -e
@@ -25,7 +25,7 @@ function print_info {
 }
 
 SERVER_MODE="N"
-EXTRA="Y"
+EXTRA="N"
 
 if [[ "$*" == *"server"* ]]
 then
@@ -33,9 +33,9 @@ then
 fi
 
 
-if [[ "$*" == *"noextra"* ]]
+if [[ "$*" == *"extra"* ]]
 then
-    EXTRA="N"
+    EXTRA="Y"
 fi
 
 print_info "Installing fzf"

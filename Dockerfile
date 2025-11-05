@@ -146,9 +146,9 @@ RUN echo "export LC_ALL=en_US.UTF-8" >> ~/.bashrc && \
 COPY --chown=ubuntu user.sh ./.user.sh
 
 RUN if [ "$FULL_BUILD" = "true" ]; then \
-        ./.user.sh server; \
+        ./.user.sh server extra; \
     else \
-        ./.user.sh server noextra; \
+        ./.user.sh server; \
     fi
 
 LABEL description="An environment for CTF and reverse-engineering!"
