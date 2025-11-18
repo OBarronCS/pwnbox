@@ -58,7 +58,7 @@ RUN apt-get update -y && \
 	systemctl set-default multi-user.target && \
 	systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount network.service
 
-SHELL ["/bin/bash", "-c"] 
+# SHELL ["/bin/bash", "-c"]
 
 # Install PowerShell - broken for 25.04 currently
 # # https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu
@@ -70,7 +70,7 @@ SHELL ["/bin/bash", "-c"]
 #     && apt-get install -y powershell \
 #     && rm -rf /var/lib/apt/lists/*
 
-SHELL ["/bin/sh", "-c"] 
+# SHELL ["/bin/sh", "-c"]
 
 ARG FULL_BUILD=false
 
@@ -152,7 +152,6 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
     fi
 
 LABEL description="An environment for CTF and reverse-engineering!"
-LABEL PWNBOX_USER_ID=1000
 LABEL SEABOX_USER_ID=1000
 
 # In the WSL build, include ghidra
@@ -164,5 +163,4 @@ COPY --chown=ubuntu wsl.sh ./.wsl.sh
 RUN sudo ./.wsl.sh
 
 LABEL description="An environment for CTF and reverse-engineering!"
-LABEL PWNBOX_USER_ID=1000
 LABEL SEABOX_USER_ID=1000

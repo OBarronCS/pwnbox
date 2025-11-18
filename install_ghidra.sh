@@ -69,10 +69,10 @@ else
     print_info "Ghidra is already installed. To remove, run 'rm -rf /opt/ghidra'"
 fi
 
-print_info "Installing ghidra2dwarf"
-if [ ! -d "$HOME/ghidra_scripts" ]; then
-    mkdir -p ~/ghidra_scripts
-    cd ~/ghidra_scripts
-    wget https://github.com/cesena/ghidra2dwarf/releases/download/latest/ghidra2dwarf.zip
-    unzip ghidra2dwarf.zip
-fi
+# print_info "Installing ghidra2dwarf"
+# if [ ! -d "$HOME/ghidra_scripts" ]; then
+#     mkdir -p ~/ghidra_scripts
+#     cd ~/ghidra_scripts
+#     wget https://github.com/cesena/ghidra2dwarf/releases/download/latest/ghidra2dwarf.zip
+#     unzip ghidra2dwarf.zip
+# fi

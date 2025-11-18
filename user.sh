@@ -133,7 +133,7 @@ pip install z3-solver
 
 print_info "Installing my fork of pwndbg"
 if [ ! -d "$HOME/pwndbg" ]; then
-	git clone https://github.com/OBarronCS/pwndbg ~/pwndbg
+	git clone --depth 1 https://github.com/OBarronCS/pwndbg ~/pwndbg
 	cd ~/pwndbg
 	chmod +x setup.sh
 	echo n | ./setup.sh
@@ -143,7 +143,7 @@ if [ ! -d "$HOME/pwndbg" ]; then
         print_info "Installing pwndbg devtools"
         echo y | ./setup-dev.sh
     fi
-    
+
     cd -
 else
     print_info "pwndbg is already installed"
