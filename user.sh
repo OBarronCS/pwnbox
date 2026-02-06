@@ -77,7 +77,7 @@ if [[ $INSTALL_PYENV =~ ^[Yy] ]]
 then
     print_info "Downloading & installing pyenv"
     if [ ! -d "${HOME}/.pyenv" ]; then
-        curl https://pyenv.run | bash
+        curl -fsSL https://pyenv.run | bash
         echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
         echo 'eval "$(pyenv init -)"' >> ~/.bashrc
         
@@ -168,6 +168,9 @@ if [ ! -d "$HOME/.cargo" ]; then
 
     print_info "Installing pwninit"
     cargo install pwninit
+
+    print_info "Installing seabox"
+    cargo install --git https://github.com/OBarronCS/seabox.git
 else
     print_info "Rust is already installed"
 fi
@@ -216,6 +219,7 @@ if ! grep -Fq 'set print object on' ~/.gdbinit; then
     echo "set print symbol-filename on" >> ~/.gdbinit
     echo "set print symbol on" >> ~/.gdbinit
     echo "set print nibbles on" >> ~/.gdbinit
+    echo "set print asm-demangle on" >> ~/.gdbinit
 
     # Makes all pwndbg errors show a stacktrace
     echo "set exception-verbose on" >> ~/.gdbinit
