@@ -57,6 +57,7 @@ sudo apt install -y zip unzip
 sudo apt install -y tmux
 sudo apt install -y ltrace strace
 sudo apt install -y jq
+sudo apt install -y make cmake pkg-config
 
 print_info "Installing vim"
 sudo apt install -y vim
