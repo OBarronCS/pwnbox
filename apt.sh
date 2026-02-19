@@ -52,15 +52,10 @@ fi
 
 
 print_info "Installing core tools"
-sudo apt install -y curl wget
-sudo apt install -y zip unzip
-sudo apt install -y tmux
-sudo apt install -y ltrace strace
-sudo apt install -y jq
-sudo apt install -y make cmake pkg-config
+sudo apt install -y curl wget zip unzip tmux ltrace strace jq make cmake pkg-config
 
-print_info "Installing vim"
-sudo apt install -y vim
+print_info "Installing vim and htop"
+sudo apt install -y vim htop
 
 print_info "Installing git"
 sudo apt install -y git
@@ -83,7 +78,6 @@ sudo apt install -y nmap
 print_info "Installing packages for 32bit development"
 sudo apt install -y gcc-multilib g++-multilib
 # Debugging symbols
-sudo apt install -y debuginfod
 sudo apt install -y libc6-dbg libc6-dbg:i386
 sudo apt install -y libstdc++6:i386
 
@@ -102,8 +96,8 @@ print_info "Installing ruby-dev"
 sudo apt install -y ruby-dev
 
 # Ghidra requires java
-print_info "Install java21 for Ghidra"
-sudo apt install -y openjdk-21-jdk
+# print_info "Install java21 for Ghidra"
+# sudo apt install -y openjdk-21-jdk
 
 print_info "Installing pwninit dependencies"
 sudo apt install -y libssl-dev liblzma-dev pkg-config patchelf

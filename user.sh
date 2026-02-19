@@ -2,7 +2,7 @@
 
 # This files contains scripts that install programs regardless of the host operating system
 # Arguments (add in no particular order)
-# - `server` - whether to install some GUI apps, like Ghidra
+# - `server` - whether to install some GUI apps
 # - `extra` - enable installing some extra dev apps
 
 # Exit when any command fails
@@ -180,6 +180,7 @@ fi
 # How did this work for me in the first place? Maybe desktop install permissions are just different?
 # Something to do with the gem init? Idk. Seemed to install locally
 print_info "Installing seccomp-tools and one_gadget with ruby"
+# TODO: do these need to be sudo?
 sudo gem install seccomp-tools
 sudo gem install one_gadget
 
