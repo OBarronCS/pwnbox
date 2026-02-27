@@ -89,9 +89,9 @@ then
         eval "$(pyenv init -)"
         # eval "$(pyenv virtualenv-init -)"
 
-        print_info "Downloading python 3.11 with pyenv. This may take a moment"
-        pyenv install 3.11 --verbose
-        pyenv global 3.11
+        print_info "Downloading python 3.13 with pyenv. This may take a moment"
+        pyenv install 3.13 --verbose
+        pyenv global 3.13
     else
         print_info "pyenv already installed"
         export PATH="$HOME/.pyenv/bin:$PATH"
@@ -215,20 +215,22 @@ if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
 fi
 
 if ! grep -Fq 'set print object on' ~/.gdbinit; then
+
+    # Pwndbg settings
+    echo "set exception-verbose on" >> ~/.gdbinit
+    echo "set exception-debugger on" >> ~/.gdbinit
+
+    echo "set show-flags on" >> ~/.gdbinit
+    echo "set show-retaddr-reg on" >> ~/.gdbinit
+    echo "#set nearpc-num-opcode-bytes 4" >> ~/.gdbinit
+
     echo "set print object on" >> ~/.gdbinit
     echo "set print vtbl on" >> ~/.gdbinit
     echo "set print symbol-filename on" >> ~/.gdbinit
     echo "set print symbol on" >> ~/.gdbinit
     echo "set print nibbles on" >> ~/.gdbinit
     echo "set print asm-demangle on" >> ~/.gdbinit
-
-    # Makes all pwndbg errors show a stacktrace
-    echo "set exception-verbose on" >> ~/.gdbinit
-    echo "set exception-debugger on" >> ~/.gdbinit
-
-    echo "set show-retaddr-reg on" >> ~/.gdbinit
-    echo "set show-flags on" >> ~/.gdbinit
-    echo "#set nearpc-num-opcode-bytes 4" >> ~/.gdbinit
+    echo "set output-radix 16" >> ~/.gdbinit
 fi
 
 if ! grep -Fq 'set debuginfod enabled on' ~/.gdbinit; then
