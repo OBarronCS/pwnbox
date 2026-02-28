@@ -58,7 +58,7 @@ jobs:
 
       # Build WSL version
       - name: Docker meta
-        id: meta
+        id: meta_wsl
         uses: docker/metadata-action@v5.10.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:wsl
@@ -74,7 +74,7 @@ jobs:
           target: wsl
           pull: true
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta_wsl.outputs.tags }}
+          labels: ${{ steps.meta_wsl.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
