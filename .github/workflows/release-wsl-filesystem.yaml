@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Git tag to release'
+        description: "Git tag to release"
         required: true
   workflow_run:
     workflows: ["Publish Docker Images"]
@@ -32,14 +32,14 @@ jobs:
       run: |
         # workflow_run trigger
         if [ -n "${GITHUB_EVENT_WORKFLOW_RUN_HEAD_TAG}" ]; then
-          echo "tag=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_TAG}" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_EVENT_WORKFLOW_RUN_HEAD_TAG}" >> "$GITHUB_OUTPUT"
         # manual trigger
-        elif [ -n "${{ github.event.inputs.tag }}" ]; then
-          echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+        elif [ -n "${GITHUB_EVENT_INPUT_TAG}" ]; then
+          echo "tag=${GITHUB_EVENT_INPUT_TAG}" >> "$GITHUB_OUTPUT"
         else
           echo "No tag provided!"
           exit 1
-
+        fi
 
     - name: Set up Docker CLI
       uses: docker/setup-buildx-action@v2
