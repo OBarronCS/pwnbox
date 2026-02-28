@@ -3,7 +3,8 @@ name: Publish Docker Images
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    tags:
+      - "v*"
 
 env:
   REGISTRY: ghcr.io
@@ -33,34 +34,47 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Username must be lowercase
-      - name: Sanitize repo slug
-        uses: actions/github-script@v6
-        id: repo_slug
+      # Build normal version
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5.10.0
         with:
-          result-encoding: string
-          script: return '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}'.toLowerCase()
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=tag
+            type=sha
 
       - name: Normal image
         uses: docker/build-push-action@v6
         with:
           context: .
+          target: base
           pull: true
           push: true
-          tags: |
-            ${{ steps.repo_slug.outputs.result }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          target: base
+
+      # Build WSL version
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5.10.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:wsl
+          tags: |
+            type=ref,event=tag
+            type=sha
+
 
       - name: WSL image
         uses: docker/build-push-action@v6
         with:
           context: .
+          target: wsl
           pull: true
           push: true
-          tags: |
-            ${{ steps.repo_slug.outputs.result }}:wsl
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          target: wsl

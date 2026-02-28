@@ -95,3 +95,12 @@ detach vdisk
 exit
 ```
 
+
+## Release guide
+This repo uses GitHub actions to upload the container image to GitHub Container Registry. The workflow to upload the image and create a new release is triggered on tags.
+
+For example, if using the release number `2.1.13`, you can do:
+```sh
+git tag -a v2.1.13 -m "Release v2.1.13"
+git push origin v2.1.13
+```

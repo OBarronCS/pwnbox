@@ -34,23 +34,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Username must be lowercase
-      - name: Sanitize repo slug
-        uses: actions/github-script@v6
-        id: repo_slug
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5.10.0
         with:
-          result-encoding: string
-          script: return '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}'.toLowerCase()
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:full
+          tags: |
+            type=ref,event=tag
+            type=sha
 
       - name: Full image
         uses: docker/build-push-action@v6
         with:
           context: .
-          pull: true
-          push: true
+          target: wsl
           build-args: |
             FULL_BUILD=true
-          tags: ${{ steps.repo_slug.outputs.result }}:full
+          pull: true
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          target: wsl
