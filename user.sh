@@ -176,11 +176,8 @@ else
 fi
 
 
-# This install it for everyone
-# How did this work for me in the first place? Maybe desktop install permissions are just different?
-# Something to do with the gem init? Idk. Seemed to install locally
 print_info "Installing seccomp-tools and one_gadget with ruby"
-# TODO: do these need to be sudo?
+# TODO: make these install without sudo. May require messing with the path
 sudo gem install seccomp-tools
 sudo gem install one_gadget
 

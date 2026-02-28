@@ -39,6 +39,7 @@ RUN apt-get update -y \
     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
     autoconf automake libtool flex bison \
     cmake \
+    podman \
     dbus cron dirmngr dmidecode gnupg kmod udev \
     && rm -rf /var/lib/apt/lists/*
 

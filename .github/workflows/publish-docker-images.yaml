@@ -61,11 +61,13 @@ jobs:
         id: meta_wsl
         uses: docker/metadata-action@v5.10.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:wsl
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=tag
             type=sha
-
+          flavor: |
+            latest=false
+            prefix=wsl-
 
       - name: WSL image
         uses: docker/build-push-action@v6
