@@ -34,7 +34,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build normal version
+      # Prepare tags for normal version
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5.10.0
@@ -43,6 +43,19 @@ jobs:
           tags: |
             type=ref,event=tag
             type=sha
+
+      # Prepare tags for WSL version
+      - name: WSL Docker meta
+        id: meta_wsl
+        uses: docker/metadata-action@v5.10.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=tag,prefix=wsl-
+            type=sha,prefix=wsl-
+            type=raw,value=wsl
+          flavor: |
+            latest=false
 
       - name: Normal image
         uses: docker/build-push-action@v6
@@ -55,19 +68,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      # Build WSL version
-      - name: Docker meta
-        id: meta_wsl
-        uses: docker/metadata-action@v5.10.0
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=tag,prefix=wsl-
-            type=sha,prefix=wsl-
-            type=raw,value=wsl
-          flavor: |
-            latest=false
 
       - name: WSL image
         uses: docker/build-push-action@v6
