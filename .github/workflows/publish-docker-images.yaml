@@ -65,6 +65,7 @@ jobs:
           tags: |
             type=ref,event=tag
             type=sha
+            type=raw,value=wsl
           flavor: |
             latest=false
             prefix=wsl-
