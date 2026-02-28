@@ -63,12 +63,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=tag
-            type=sha
+            type=ref,event=tag,prefix=wsl-
+            type=sha,prefix=wsl-
             type=raw,value=wsl
           flavor: |
             latest=false
-            prefix=wsl-
 
       - name: WSL image
         uses: docker/build-push-action@v6
