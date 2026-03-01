@@ -2,10 +2,17 @@
 
 This contains various scripts to setup a Linux environment useful for CTF. A Docker image is also built - this is a great pre-built image to use with [Seabox](https://github.com/OBarronCS/seabox)! A variant for `wsl` is also built - the [filesystem can be exported and used to install a `wsl` distro](#create-wsl-image-from-the-container)!
 
-The pre-built Docker image created from the `Dockerfile` in this repo can be found at `ghcr.io/obarroncs/pwnbox`. There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB.
+The pre-built Docker image created from the `Dockerfile` in this repo can be found at [`ghcr.io/obarroncs/pwnbox`](https://github.com/OBarronCS/pwnbox/pkgs/container/pwnbox). There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB.
 
 ## Create WSL image from the container
 We can extract the root filesystem from the container image and use it as a WSL distro!
+
+### Ensure WSL is installed
+
+If you haven't used WSL before, make sure it is installed by running this command. This will require a reboot to take effect.
+```powershell
+wsl --install --no-distribution
+```
 
 ### Automated install
 You can use this one-line PowerShell command to download the latest `.tar.gz` file from GitHub releases and install it as a distro on WSL. 
