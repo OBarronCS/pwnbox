@@ -42,7 +42,7 @@ jobs:
           tags: |
             type=ref,event=tag,prefix=full-
             type=sha,prefix=full-
-            type=raw,value=full-
+            type=raw,value=full
 
       - name: Full image
         uses: docker/build-push-action@v6
