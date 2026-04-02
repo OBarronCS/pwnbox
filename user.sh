@@ -55,11 +55,14 @@ INSTALL_PWNDBG="Y"
 INSTALL_RUST="Y"
 INSTALL_ZOXIDE="Y"
 
+INSTALL_PWNINIT="Y"
+
 if [[ $LITE_MODE =~ ^[Yy] ]]
 then
     INSTALL_PYENV="N"
     INSTALL_NVM="N"
     INSTALL_PWNDBG="N"
+    INSTALL_PWNINIT="N"
 fi
 
 
@@ -188,8 +191,11 @@ then
 
         source "$HOME/.cargo/env"
 
-        print_info "Installing pwninit"
-        cargo install pwninit
+        if [[ $INSTALL_PWNINIT =~ ^[Yy] ]]
+        then
+            print_info "Installing pwninit"
+            cargo install pwninit
+        fi
 
         print_info "Installing seabox"
         cargo install --git https://github.com/OBarronCS/seabox.git
