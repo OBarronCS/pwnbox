@@ -4,6 +4,15 @@ This contains various scripts to setup a Linux environment useful for CTF. A Doc
 
 The pre-built Docker image created from the `Dockerfile` in this repo can be found at [`ghcr.io/obarroncs/pwnbox`](https://github.com/OBarronCS/pwnbox/pkgs/container/pwnbox). There are two variants - the normal image, and a `full` image. The normal image is about 5GB, while the full image is about 15GB. The `full` image has a bunch of cross-compilers installed in it, which take up the 10GB.
 
+## Quick install
+```sh
+curl -L obarroncs.github.io/pwnbox/apt.sh | bash
+curl -L obarroncs.github.io/pwnbox/user.sh | bash
+
+# Lite install
+curl -L obarroncs.github.io/pwnbox/user.sh | bash -s -- lite
+```
+
 ## Create WSL image from the container
 We can extract the root filesystem from the container image and use it as a WSL distro!
 
