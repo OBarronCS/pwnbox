@@ -52,13 +52,7 @@ fi
 
 
 print_info "Installing core tools"
-sudo apt install -y curl wget zip unzip tmux ltrace strace jq make cmake pkg-config
-
-print_info "Installing vim and htop"
-sudo apt install -y vim htop
-
-print_info "Installing git"
-sudo apt install -y git
+sudo apt install -y curl wget git zip unzip tmux vim htop ltrace strace jq make cmake pkg-config
 
 print_info "gdb"
 sudo apt install -y gdb gdbserver gdb-multiarch

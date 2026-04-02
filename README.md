@@ -6,11 +6,12 @@ The pre-built Docker image created from the `Dockerfile` in this repo can be fou
 
 ## Quick install
 ```sh
+# Full setup for a new Ubuntu VM / machine
 curl -LsSf obarroncs.github.io/pwnbox/apt.sh | bash
 curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash
 
 # Lite install
-sudo apt update -y && sudo apt install -y build-essential vim git tmux
+sudo apt update -y && sudo apt install -y build-essential vim git tmux kitty-terminfo
 curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash -s -- lite
 ```
 
