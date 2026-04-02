@@ -4,6 +4,7 @@
 # Arguments (add in no particular order)
 # - `server` - whether to install some GUI apps
 # - `extra` - enable installing some extra dev apps
+# - `lite` - just install the essentials
 
 # Exit when any command fails
 set -e
@@ -26,17 +27,41 @@ function print_info {
 
 SERVER_MODE="N"
 EXTRA="N"
+LITE_MODE="N"
 
 if [[ "$*" == *"server"* ]]
 then
     SERVER_MODE="Y"
 fi
 
-
 if [[ "$*" == *"extra"* ]]
 then
     EXTRA="Y"
 fi
+
+if [[ "$*" == *"lite"* ]]
+then
+    LITE_MODE="Y"
+fi
+
+
+INSTALL_MISE="N"
+INSTALL_RUBY_TOOLS="N"
+
+INSTALL_UV="Y"
+INSTALL_PYENV="Y"
+INSTALL_NVM="Y"
+INSTALL_PWNDBG="Y"
+INSTALL_RUST="Y"
+INSTALL_ZOXIDE="Y"
+
+if [[ $LITE_MODE =~ ^[Yy] ]]
+then
+    INSTALL_PYENV="N"
+    INSTALL_NVM="N"
+    INSTALL_PWNDBG="N"
+fi
+
 
 print_info "Installing fzf"
 if [ ! -d "${HOME}/.fzf" ]; then
@@ -47,7 +72,6 @@ else
 fi
 
 
-INSTALL_MISE="N"
 if [[ $INSTALL_MISE =~ ^[Yy] ]]
 then
     print_info "Installing mise"
@@ -60,7 +84,6 @@ then
     fi
 fi
 
-INSTALL_UV="Y"
 if [[ $INSTALL_UV =~ ^[Yy] ]]
 then
     print_info "Installing uv"
@@ -72,7 +95,6 @@ then
     fi
 fi
 
-INSTALL_PYENV="Y"
 if [[ $INSTALL_PYENV =~ ^[Yy] ]]
 then
     print_info "Downloading & installing pyenv"
@@ -92,6 +114,16 @@ then
         print_info "Downloading python 3.13 with pyenv. This may take a moment"
         pyenv install 3.13 --verbose
         pyenv global 3.13
+
+        # TODO: should these be installed?
+        print_info "Installing pwntools"
+        pip install pwntools
+
+        print_info "Installing ROPgadget"
+        pip install ROPgadget
+
+        print_info "Installing z3"
+        pip install z3-solver
     else
         print_info "pyenv already installed"
         export PATH="$HOME/.pyenv/bin:$PATH"
@@ -99,7 +131,6 @@ then
     fi
 fi
 
-INSTALL_NVM="Y"
 if [[ $INSTALL_NVM =~ ^[Yy] ]]
 then
     print_info "Install node version manager (nvm)"
@@ -119,67 +150,68 @@ then
 fi
 
 
-print_info "Installing pwntools"
-pip install pwntools
+if [[ $INSTALL_PWNDBG =~ ^[Yy] ]]
+then
+    print_info "Installing my fork of pwndbg"
+    if [ ! -d "$HOME/pwndbg" ]; then
+        git clone --depth 1 https://github.com/OBarronCS/pwndbg ~/pwndbg
+        cd ~/pwndbg
+        chmod +x setup.sh
+        echo n | ./setup.sh
 
-print_info "Installing ROPgadget"
-pip install ROPgadget
+        if [[ $EXTRA =~ ^[Yy] ]];
+        then
+            print_info "Installing pwndbg devtools"
+            echo y | ./setup-dev.sh
+        fi
 
-print_info "Installing z3"
-pip install z3-solver
-
-# print_info "Installing Keystone"
-# pip install keystone-engine
-
-print_info "Installing my fork of pwndbg"
-if [ ! -d "$HOME/pwndbg" ]; then
-	git clone --depth 1 https://github.com/OBarronCS/pwndbg ~/pwndbg
-	cd ~/pwndbg
-	chmod +x setup.sh
-	echo n | ./setup.sh
-
-    if [[ $EXTRA =~ ^[Yy] ]];
-    then
-        print_info "Installing pwndbg devtools"
-        echo y | ./setup-dev.sh
+        cd -
+    else
+        print_info "pwndbg is already installed"
     fi
 
-    cd -
-else
-    print_info "pwndbg is already installed"
+    print_info "Installing GEP plugin to GDB"
+    if [ ! -d "$HOME/.local/share/GEP" ]; then
+        # You could also choose other directories to install GEP if you want
+        git clone --depth 1 https://github.com/lebr0nli/GEP.git ~/.local/share/GEP
+        ~/.local/share/GEP/install.sh
+    fi
 fi
 
-print_info "Installing GEP plugin to GDB"
-if [ ! -d "$HOME/.local/share/GEP" ]; then
-    # You could also choose other directories to install GEP if you want
-    git clone --depth 1 https://github.com/lebr0nli/GEP.git ~/.local/share/GEP
-    ~/.local/share/GEP/install.sh
+if [[ $INSTALL_RUST =~ ^[Yy] ]]
+then
+    print_info "Installing Rust and pwninit (this may take a while)"
+    if [ ! -d "$HOME/.cargo" ]; then
+        # Non-interactive minimal install
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
+        # rustup component add clippy rustfmt
+
+        source "$HOME/.cargo/env"
+
+        print_info "Installing pwninit"
+        cargo install pwninit
+
+        print_info "Installing seabox"
+        cargo install --git https://github.com/OBarronCS/seabox.git
+    else
+        print_info "Rust is already installed"
+    fi
+fi
+
+if [[ $INSTALL_RUBY_TOOLS =~ ^[Yy] ]]
+then
+	cat <<-'EOF' >> ~/.bashrc
+	if command -v ruby >/dev/null 2>&1; then
+		PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+	fi
+	EOF
+
+    print_info "Installing seccomp-tools and one_gadget with ruby"
+    gem install seccomp-tools
+    gem install one_gadget
 fi
 
 
-# TODO: Make this install globally
-print_info "Installing Rust and pwninit (this may take a while)"
-if [ ! -d "$HOME/.cargo" ]; then
-    # Non-interactive minimal install
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
-    # rustup component add clippy rustfmt
-
-    source "$HOME/.cargo/env"
-
-    print_info "Installing pwninit"
-    cargo install pwninit
-
-    print_info "Installing seabox"
-    cargo install --git https://github.com/OBarronCS/seabox.git
-else
-    print_info "Rust is already installed"
-fi
-
-
-print_info "Installing seccomp-tools and one_gadget with ruby"
-# TODO: make these install without sudo. May require messing with the path
-sudo gem install seccomp-tools
-sudo gem install one_gadget
 
 
 print_info "Installing .dotfiles"
@@ -187,6 +219,18 @@ if [ ! -d "${HOME}/.dotfiles" ]; then
     curl https://raw.githubusercontent.com/OBarronCS/.dotfiles/master/install.sh | bash
 else
     print_info ".dotfiles already installed, very cool!"
+fi
+
+if [[ $INSTALL_ZOXIDE =~ ^[Yy] ]]
+then
+    print_info "Installing zoxide"
+    if ! command -v zoxide &> /dev/null; then
+        # curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+        # The curl install method hits rate limit on GitHub API
+        cargo install zoxide --locked
+    else
+        print_info "Zoxide already installed!"
+    fi
 fi
 
 print_info "Adding aliases and .bashrc setup"
@@ -204,7 +248,6 @@ if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
     echo "export EDITOR=vim" >> ~/.bashrc
     echo 'export PATH="$PATH:$HOME/ctfsetup/bin"' >> ~/.bashrc
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-    # echo 'export PATH="$HOME/.local/share/gem/ruby/3.0.0/bin:$PATH"' >> ~/.bashrc
     echo 'eval "$(zoxide init bash)"' >> ~/.bashrc
     echo 'alias ossh="TERM=xterm-256color \\ssh"' >> ~/.bashrc
     echo 'alias tmo="history -a; tmux"' >> ~/.bashrc
@@ -212,7 +255,6 @@ if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
 fi
 
 if ! grep -Fq 'set print object on' ~/.gdbinit; then
-
     # Pwndbg settings
     echo "set exception-verbose on" >> ~/.gdbinit
     echo "set exception-debugger on" >> ~/.gdbinit
@@ -234,20 +276,8 @@ if ! grep -Fq 'set debuginfod enabled on' ~/.gdbinit; then
     echo "set debuginfod enabled on" >> ~/.gdbinit
 fi
 
-
-
-
 # TODO:
 # Add some of these aliases and symlinks to dotfiles for the root user
-
-print_info "Installing zoxide"
-if ! command -v zoxide &> /dev/null; then
-    # curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
-    # The curl install method hits rate limit on GitHub API
-    cargo install zoxide --locked
-else
-    print_info "Zoxide already installed!"
-fi
 
 
 print_info "Done! Make sure to exec into a new shell for changes to take effect"
