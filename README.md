@@ -6,11 +6,12 @@ The pre-built Docker image created from the `Dockerfile` in this repo can be fou
 
 ## Quick install
 ```sh
-curl -L obarroncs.github.io/pwnbox/apt.sh | bash
-curl -L obarroncs.github.io/pwnbox/user.sh | bash
+curl -LsSf obarroncs.github.io/pwnbox/apt.sh | bash
+curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash
 
 # Lite install
-curl -L obarroncs.github.io/pwnbox/user.sh | bash -s -- lite
+sudo apt update -y && sudo apt install -y build-essential git tmux
+curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash -s -- lite
 ```
 
 ## Create WSL image from the container

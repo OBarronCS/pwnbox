@@ -92,6 +92,7 @@ then
     print_info "Installing uv"
     if ! command -v uv &> /dev/null; then
         curl -LsSf https://astral.sh/uv/install.sh | sh
+        . "$HOME/.local/bin/env"
         # uv python install 3.13 --default
     else
         print_info "uv already installed!"
@@ -183,7 +184,7 @@ fi
 
 if [[ $INSTALL_RUST =~ ^[Yy] ]]
 then
-    print_info "Installing Rust and pwninit (this may take a while)"
+    print_info "Installing Rust (this may take a while)"
     if [ ! -d "$HOME/.cargo" ]; then
         # Non-interactive minimal install
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
@@ -193,7 +194,7 @@ then
 
         if [[ $INSTALL_PWNINIT =~ ^[Yy] ]]
         then
-            print_info "Installing pwninit"
+            print_info "Installing pwninit (this may take a while)"
             cargo install pwninit
         fi
 
