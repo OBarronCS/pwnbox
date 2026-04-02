@@ -10,7 +10,7 @@ curl -LsSf obarroncs.github.io/pwnbox/apt.sh | bash
 curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash
 
 # Lite install
-sudo apt update -y && sudo apt install -y build-essential git tmux
+sudo apt update -y && sudo apt install -y build-essential vim git tmux
 curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash -s -- lite
 ```
 
