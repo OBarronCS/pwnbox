@@ -92,7 +92,8 @@ then
     print_info "Installing uv"
     if ! command -v uv &> /dev/null; then
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        . "$HOME/.local/bin/env"
+        # TODO: make rerunning script without exec'ing into new shell not rerun this
+        # . "$HOME/.local/bin/env"
         # uv python install 3.13 --default
     else
         print_info "uv already installed!"
