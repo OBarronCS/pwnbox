@@ -87,13 +87,15 @@ then
     fi
 fi
 
+# Loads
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
+
 if [[ $INSTALL_UV =~ ^[Yy] ]]
 then
     print_info "Installing uv"
     if ! command -v uv &> /dev/null; then
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        # TODO: make rerunning script without exec'ing into new shell not rerun this
-        # . "$HOME/.local/bin/env"
+        . "$HOME/.local/bin/env"
         # uv python install 3.13 --default
     else
         print_info "uv already installed!"
@@ -160,17 +162,22 @@ then
     print_info "Installing my fork of pwndbg"
     if [ ! -d "$HOME/pwndbg" ]; then
         git clone --depth 1 https://github.com/OBarronCS/pwndbg ~/pwndbg
-        cd ~/pwndbg
-        chmod +x setup.sh
-        echo n | ./setup.sh
+        pushd ~/pwndbg
 
+        # Classic setup
         if [[ $EXTRA =~ ^[Yy] ]];
         then
+            chmod +x setup.sh
+            echo n | ./setup.sh
             print_info "Installing pwndbg devtools"
             echo y | ./setup-dev.sh
+        else
+            PY_VER=$(gdb -nx --batch -iex 'py import sysconfig; print(sysconfig.get_config_var("VERSION"))')
+            uv tool install --python=$PY_VER .
+            echo "source $(uv tool dir)/pwndbg/share/pwndbg/gdbinit.py" >> ~/.gdbinit
         fi
 
-        cd -
+        popd
     else
         print_info "pwndbg is already installed"
     fi
