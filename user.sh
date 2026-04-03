@@ -186,7 +186,7 @@ then
     if [ ! -d "$HOME/.local/share/GEP" ]; then
         # You could also choose other directories to install GEP if you want
         git clone --depth 1 https://github.com/lebr0nli/GEP.git ~/.local/share/GEP
-        ~/.local/share/GEP/install.sh
+        ~/.local/share/GEP/install.sh --uv
     fi
 fi
 
