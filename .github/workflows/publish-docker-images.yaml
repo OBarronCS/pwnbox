@@ -68,10 +68,10 @@ jobs:
             type=raw,value=wsl-ubuntu${{ matrix.version.base }},prefix=
             type=ref,event=tag
             type=sha,prefix=wsl-ubuntu${{ matrix.version.base }}-
-            type=raw,value=wsl,enable=${{ matrix.version.default }}
+            type=raw,value=wsl,enable=${{ matrix.version.default }},prefix=
           flavor: |
             latest=false
-            prefix=wsl-ubuntu${{ matrix.version.base }}-
+            prefix=wsl-ubuntu${{ matrix.version.base }}-,onlatest=false
 
       - name: Normal image
         uses: docker/build-push-action@v6
