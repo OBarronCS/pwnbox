@@ -66,6 +66,14 @@ then
 fi
 
 
+print_info "Installing .dotfiles"
+if [ ! -d "${HOME}/.dotfiles" ]; then
+    git clone https://github.com/OBarronCS/.dotfiles.git ~/.dotfiles
+    ~/.dotfiles/setup.sh
+else
+    print_info ".dotfiles already installed, very cool!"
+fi
+
 print_info "Installing fzf"
 if [ ! -d "${HOME}/.fzf" ]; then
     git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
@@ -229,18 +237,6 @@ then
     gem install one_gadget
 fi
 
-
-
-
-print_info "Installing .dotfiles"
-if [ ! -d "${HOME}/.dotfiles" ]; then
-    git clone https://github.com/OBarronCS/.dotfiles.git ~/.dotfiles
-    ~/.dotfiles/setup.sh
-else
-    print_info ".dotfiles already installed, very cool!"
-fi
-
-echo "test"
 
 if [[ $INSTALL_ZOXIDE =~ ^[Yy] ]]
 then
