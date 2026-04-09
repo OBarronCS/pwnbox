@@ -18,6 +18,7 @@ jobs:
       matrix:
         version:
           - { base: 25.04, default: false }
+          - { base: 25.10, default: false }
           - { base: 26.04, default: true }
 
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
