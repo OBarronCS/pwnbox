@@ -190,6 +190,9 @@ then
     fi
 fi
 
+# Load rust into the PATH if it has already been installed
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
 if [[ $INSTALL_RUST =~ ^[Yy] ]]
 then
     print_info "Installing Rust"
@@ -198,7 +201,7 @@ then
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
         # rustup component add clippy rustfmt
 
-        source "$HOME/.cargo/env"
+        . "$HOME/.cargo/env"
 
         if [[ $INSTALL_PWNINIT =~ ^[Yy] ]]
         then
