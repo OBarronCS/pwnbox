@@ -87,15 +87,15 @@ then
     fi
 fi
 
-# Loads
-[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
+# This is where uv is loaded
+export PATH="$HOME/.local/bin:$PATH"
 
 if [[ $INSTALL_UV =~ ^[Yy] ]]
 then
     print_info "Installing uv"
     if ! command -v uv &> /dev/null; then
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        . "$HOME/.local/bin/env"
+        export PATH="$HOME/.local/bin:$PATH"
         # uv python install 3.13 --default
     else
         print_info "uv already installed!"
@@ -192,7 +192,7 @@ fi
 
 if [[ $INSTALL_RUST =~ ^[Yy] ]]
 then
-    print_info "Installing Rust (this may take a while)"
+    print_info "Installing Rust"
     if [ ! -d "$HOME/.cargo" ]; then
         # Non-interactive minimal install
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile minimal -y
@@ -267,9 +267,12 @@ if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
     echo 'alias ossh="TERM=xterm-256color \\ssh"' >> ~/.bashrc
     echo 'alias tmo="history -a; tmux"' >> ~/.bashrc
     echo 'alias ipi="PWNLIB_NOTERM=1 PYTHONSTARTUP=~/.pythonrc.py python"' >> ~/.bashrc
+
+    echo 'export FZF_CTRL_R_OPTS='\''--bind "enter:become:if [[ -n {} ]]; then echo {}; else echo {q}; fi" --bind "ctrl-c:become:echo {q}"'\''' >> ~/.bashrc
+
 fi
 
-if ! grep -Fq 'set print object on' ~/.gdbinit; then
+if [ ! -f ~/.gdbinit ] || ! grep -Fq 'set print object on' ~/.gdbinit; then
     # Pwndbg settings
     echo "set exception-verbose on" >> ~/.gdbinit
     echo "set exception-debugger on" >> ~/.gdbinit
