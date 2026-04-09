@@ -54,7 +54,7 @@ jobs:
             # Need to specify prefix here: https://github.com/docker/metadata-action/issues/270
             type=sha,prefix=ubuntu${{ matrix.version.base }}-
             type=raw,value=latest,enable=${{ matrix.version.default }},prefix=
-          flavor:
+          flavor: |
             latest=false
             prefix=ubuntu${{ matrix.version.base }}-,onlatest=false
 
