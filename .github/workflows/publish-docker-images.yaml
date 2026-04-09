@@ -51,11 +51,12 @@ jobs:
           tags: |
             type=raw,ubuntu${{ matrix.version.base }},prefix=
             type=ref,event=tag
-            type=sha
+            # Need to specify prefix here: https://github.com/docker/metadata-action/issues/270
+            type=sha,prefix=ubuntu${{ matrix.version.base }}-
             type=raw,value=latest,enable=${{ matrix.version.default }},prefix=
           flavor:
-            prefix=ubuntu${{ matrix.version.base }}-,onlatest=false
             latest=false
+            prefix=ubuntu${{ matrix.version.base }}-,onlatest=false
 
       # Prepare tags for WSL version
       - name: WSL Docker meta
@@ -66,11 +67,11 @@ jobs:
           tags: |
             type=raw,value=wsl-ubuntu${{ matrix.version.base }},prefix=
             type=ref,event=tag
-            type=sha
+            type=sha,prefix=wsl-ubuntu${{ matrix.version.base }}-
             type=raw,value=wsl,enable=${{ matrix.version.default }}
           flavor: |
-            prefix=wsl-ubuntu${{ matrix.version.base }}-
             latest=false
+            prefix=wsl-ubuntu${{ matrix.version.base }}-
 
       - name: Normal image
         uses: docker/build-push-action@v6
