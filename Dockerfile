@@ -59,19 +59,15 @@ RUN apt-get update -y && \
 	systemctl set-default multi-user.target && \
 	systemctl mask dev-hugepages.mount sys-fs-fuse-connections.mount network.service
 
-# SHELL ["/bin/bash", "-c"]
-
 # Install PowerShell - broken for 25.04 currently
 # # https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu
-# RUN source /etc/os-release \
+# RUN . /etc/os-release \
 #     && wget -q https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb \
 #     && dpkg -i packages-microsoft-prod.deb \
 #     && rm packages-microsoft-prod.deb \
 #     && apt-get update \
 #     && apt-get install -y powershell \
 #     && rm -rf /var/lib/apt/lists/*
-
-# SHELL ["/bin/sh", "-c"]
 
 ARG FULL_BUILD=false
 
