@@ -172,17 +172,20 @@ then
         git clone --depth 1 https://github.com/OBarronCS/pwndbg ~/pwndbg
         pushd ~/pwndbg
 
+        chmod +x setup.sh
+        echo n | ./setup.sh
+
         # Classic setup
         if [[ $EXTRA =~ ^[Yy] ]];
         then
-            chmod +x setup.sh
-            echo n | ./setup.sh
+            # chmod +x setup.sh
+            # echo n | ./setup.sh
             print_info "Installing pwndbg devtools"
             echo y | ./setup-dev.sh
-        else
-            PY_VER=$(gdb -nx --batch -iex 'py import sysconfig; print(sysconfig.get_config_var("VERSION"))')
-            uv tool install --python=$PY_VER .
-            echo "source $(uv tool dir)/pwndbg/share/pwndbg/gdbinit.py" >> ~/.gdbinit
+        # else
+        #     PY_VER=$(gdb -nx --batch -iex 'py import sysconfig; print(sysconfig.get_config_var("VERSION"))')
+        #     uv tool install --python=$PY_VER .
+        #     echo "source $(uv tool dir)/pwndbg/share/pwndbg/gdbinit.py" >> ~/.gdbinit
         fi
 
         popd
