@@ -28,7 +28,6 @@ RUN apt-get update -y \
     nmap tcpdump telnet \
     capstone-tool \
     ruby-dev perl \
-    openjdk-21-jdk \
     bat \
     iproute2 iptables traceroute dnsutils lsof net-tools \
     apt-transport-https apt-utils iputils-ping software-properties-common \
@@ -159,7 +158,8 @@ LABEL SEABOX_USER_ID=1000
 # In the WSL build, include ghidra
 FROM base AS wsl
 COPY --chown=ubuntu install_ghidra.sh ./.install_ghidra.sh
-RUN ./.install_ghidra.sh
+# TODO: also install openjdk-21-jdk if running this
+# RUN ./.install_ghidra.sh
 
 COPY --chown=ubuntu wsl.sh ./.wsl.sh
 RUN sudo ./.wsl.sh
