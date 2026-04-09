@@ -17,8 +17,8 @@ jobs:
     strategy:
       matrix:
         version:
-          - { ver: 25.04, default: false }
-          - { ver: 26.04, default: true }
+          - { base: 25.04, default: false }
+          - { base: 26.04, default: true }
 
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -49,12 +49,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,ubuntu${{ matrix.version }},prefix=
+            type=raw,ubuntu${{ matrix.version.base }},prefix=
             type=ref,event=tag
             type=sha
             type=raw,value=latest,enable=${{ matrix.version.default }}
           flavor:
-            prefix=ubuntu${{ matrix.version }}-,onlatest=false
+            prefix=ubuntu${{ matrix.version.base }}-,onlatest=false
 
       # Prepare tags for WSL version
       - name: WSL Docker meta
@@ -63,12 +63,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=wsl-ubuntu${{ matrix.version }},prefix=
+            type=raw,value=wsl-ubuntu${{ matrix.version.base }},prefix=
             type=ref,event=tag
             type=sha
             type=raw,value=wsl,enable=${{ matrix.version.default }}
           flavor: |
-            prefix=wsl-ubuntu${{ matrix.version }}-
+            prefix=wsl-ubuntu${{ matrix.version.base }}-
             latest=false
 
       - name: Normal image
@@ -77,7 +77,7 @@ jobs:
           context: .
           target: base
           build-args: |
-            UBUNTU_VERSION=${{ matrix.version }}
+            UBUNTU_VERSION=${{ matrix.version.base }}
           pull: true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -91,7 +91,7 @@ jobs:
           context: .
           target: wsl
           build-args: |
-            UBUNTU_VERSION=${{ matrix.version }}
+            UBUNTU_VERSION=${{ matrix.version.base }}
           pull: true
           push: true
           tags: ${{ steps.meta_wsl.outputs.tags }}
