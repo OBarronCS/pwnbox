@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Pages
-        uses: actions/configure-pages@v5.0.0
+        uses: actions/configure-pages@v6.0.0
 
       - name: Checkout
-        uses: actions/checkout@v4.2.0
+        uses: actions/checkout@v6
 
       - name: Choose files to deploy
         run: |
@@ -28,7 +28,7 @@ jobs:
           mv aptvm.sh public
 
       - name: Upload GitHub Pages Artifact
-        uses: actions/upload-pages-artifact@v3.0.1
+        uses: actions/upload-pages-artifact@v4
         with:
           path: public
 
@@ -48,4 +48,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4.0.5
+        uses: actions/deploy-pages@v5
