@@ -2,9 +2,9 @@ name: Publish Full Docker Image
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Publish Docker Images"]
-    types: [completed]
+  # workflow_run:
+    # workflows: ["Publish Docker Images"]
+    # types: [completed]
 
 env:
   REGISTRY: ghcr.io
@@ -55,5 +55,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
