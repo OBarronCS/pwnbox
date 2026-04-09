@@ -45,21 +45,22 @@ jobs:
       # Prepare tags for normal version
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5.10.0
+        uses: docker/metadata-action@v6.0.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,ubuntu${{ matrix.version.base }},prefix=
             type=ref,event=tag
             type=sha
-            type=raw,value=latest,enable=${{ matrix.version.default }}
+            type=raw,value=latest,enable=${{ matrix.version.default }},prefix=
           flavor:
             prefix=ubuntu${{ matrix.version.base }}-,onlatest=false
+            latest=false
 
       # Prepare tags for WSL version
       - name: WSL Docker meta
         id: meta_wsl
-        uses: docker/metadata-action@v5.10.0
+        uses: docker/metadata-action@v6.0.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
