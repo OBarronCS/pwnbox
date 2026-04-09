@@ -85,8 +85,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ matrix.version.base }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.version.base }}
 
       - name: WSL image
         uses: docker/build-push-action@v7
@@ -99,5 +99,5 @@ jobs:
           push: true
           tags: ${{ steps.meta_wsl.outputs.tags }}
           labels: ${{ steps.meta_wsl.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=wsl_${{ matrix.version.base }}
+          cache-to: type=gha,mode=max,scope=wsl_${{ matrix.version.base }}
