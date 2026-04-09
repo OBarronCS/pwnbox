@@ -231,7 +231,8 @@ fi
 
 print_info "Installing .dotfiles"
 if [ ! -d "${HOME}/.dotfiles" ]; then
-    curl https://raw.githubusercontent.com/OBarronCS/.dotfiles/master/install.sh | bash
+    git clone https://github.com/OBarronCS/.dotfiles.git ~/.dotfiles
+    ~/.dotfiles/setup.sh
 else
     print_info ".dotfiles already installed, very cool!"
 fi
