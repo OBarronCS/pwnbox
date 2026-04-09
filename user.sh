@@ -7,11 +7,12 @@
 # - `lite` - just install the essentials
 
 # Exit when any command fails
+set -x
 set -e
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 # echo an error message before exiting
-trap 'echo "\"${last_command}\" command failed with exit code $?."' EXIT
+trap 'echo "\"${last_command}\" command finished with exit code $?."' EXIT
 
 
 RED="\e[31m"
@@ -239,6 +240,8 @@ if [ ! -d "${HOME}/.dotfiles" ]; then
 else
     print_info ".dotfiles already installed, very cool!"
 fi
+
+echo "test"
 
 if [[ $INSTALL_ZOXIDE =~ ^[Yy] ]]
 then
