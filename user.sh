@@ -7,7 +7,6 @@
 # - `lite` - just install the essentials
 
 # Exit when any command fails
-set -x
 set -e
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
