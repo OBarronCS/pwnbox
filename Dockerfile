@@ -1,4 +1,5 @@
-FROM ubuntu:25.04 AS base
+ARG UBUNTU_VERSION=25.04
+FROM ubuntu:${UBUNTU_VERSION} AS base
 
 RUN apt-get update -y && apt-get install -y unminimize
 RUN yes | unminimize

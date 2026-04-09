@@ -13,12 +13,20 @@ env:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        version:
+          - { ver: 25.04, default: false }
+          - { ver: 26.04, default: true }
+
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
+    
     steps:
 
       - name: Checkout the repository
@@ -41,8 +49,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=raw,ubuntu${{ matrix.version }},prefix=
             type=ref,event=tag
             type=sha
+            type=raw,value=latest,enable=${{ matrix.version.default }}
+          flavor:
+            prefix=ubuntu${{ matrix.version }}-,onlatest=false
 
       # Prepare tags for WSL version
       - name: WSL Docker meta
@@ -51,10 +63,12 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=tag,prefix=wsl-
-            type=sha,prefix=wsl-
-            type=raw,value=wsl
+            type=raw,value=wsl-ubuntu${{ matrix.version }},prefix=
+            type=ref,event=tag
+            type=sha
+            type=raw,value=wsl,enable=${{ matrix.version.default }}
           flavor: |
+            prefix=wsl-ubuntu${{ matrix.version }}-
             latest=false
 
       - name: Normal image
@@ -62,6 +76,8 @@ jobs:
         with:
           context: .
           target: base
+          build-args: |
+            UBUNTU_VERSION=${{ matrix.version }}
           pull: true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
@@ -74,6 +90,8 @@ jobs:
         with:
           context: .
           target: wsl
+          build-args: |
+            UBUNTU_VERSION=${{ matrix.version }}
           pull: true
           push: true
           tags: ${{ steps.meta_wsl.outputs.tags }}
