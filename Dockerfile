@@ -19,7 +19,7 @@ RUN apt-get update -y \
     strace ltrace procps \
     pahole \
     sudo \
-    vim less \
+    vim less rlwrap \
     kitty-terminfo \
     lsb-release \
     file \
