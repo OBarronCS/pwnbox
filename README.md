@@ -11,6 +11,7 @@ curl -LsSf obarroncs.github.io/pwnbox/apt.sh | bash
 curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash
 
 # Lite install
+export DEBIAN_FRONTEND=noninteractive
 sudo apt update -y && sudo apt install -y build-essential curl wget vim git tmux kitty-terminfo
 curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash -s -- lite
 ```
