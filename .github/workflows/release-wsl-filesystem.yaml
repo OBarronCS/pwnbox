@@ -2,9 +2,19 @@ name: Extract and Release WSL tarball
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Publish Docker Images"]
-    types: [completed]
+    inputs:
+      tag:
+        description: "Release tag"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      github_token:
+        required: true
 
 env:
   REGISTRY: ghcr.io
@@ -57,5 +67,6 @@ jobs:
           ./wsl_rootfs.tar.gz
         body: "Follow the steps [here](https://github.com/OBarronCS/pwnbox?tab=readme-ov-file#step-2---create-a-wsl-distro-with-the-tar-file) to use this .tar.gz file to create a WSL distro!"
         name: "WSL root filesystem"
-        draft: true
+        draft: false
+        tag_name: ${{ inputs.tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
