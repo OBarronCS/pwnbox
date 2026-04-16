@@ -23,7 +23,7 @@ jobs:
 
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
-      contents: write
+      contents: read
       packages: write
       attestations: write
       id-token: write
@@ -103,6 +103,10 @@ jobs:
           cache-to: type=gha,mode=max,scope=wsl_${{ matrix.version.base }}
   
   release:
+    permissions:
+      contents: write
+      packages: read
+
     needs: build-and-push-image
     uses: ./.github/workflows/release-wsl-filesystem.yaml
     with:
