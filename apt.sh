@@ -9,7 +9,7 @@
 # If it fails at any point, can rerun the script safely
 
 # Exit when any command fails
-set -e
+set -eu
 
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
