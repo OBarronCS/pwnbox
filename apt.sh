@@ -124,7 +124,11 @@ echo \
 sudo apt-get update
 
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo usermod -aG docker $USER
+
+# In containers, $USER is not set by default 
+if [ -z "${USER+x}" ]; then
+    sudo usermod -aG docker $USER
+fi
 
 print_info "Installing podman"
 sudo apt install -y podman
