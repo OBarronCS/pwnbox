@@ -92,7 +92,7 @@ wsl -d pwnbox
 ```sh
 # You can swap podman with docker below:
 # Base image
-sudo podman build . --target base -t pwnbox
+sudo podman build . --target base -t pwnbox:ubuntu26.04 --build-arg UBUNTU_VERSION=26.04
 # Optional build args:
 #   --build-arg FULL_BUILD=true
 
