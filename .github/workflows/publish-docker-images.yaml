@@ -18,7 +18,6 @@ jobs:
       matrix:
         version:
           - { base: "24.04", default: false }
-          - { base: "24.10", default: false }
           - { base: "25.04", default: false }
           - { base: "25.10", default: false }
           - { base: "26.04", default: true }
