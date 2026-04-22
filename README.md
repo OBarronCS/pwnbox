@@ -7,6 +7,7 @@ The pre-built Docker image created from the `Dockerfile` in this repo can be fou
 ghcr.io/obarroncs/pwnbox:ubuntu26.04
 ghcr.io/obarroncs/pwnbox:ubuntu25.10
 ghcr.io/obarroncs/pwnbox:ubuntu25.04
+ghcr.io/obarroncs/pwnbox:ubuntu24.04
 
 # This image container GCC cross compilers for various arches
 ghcr.io/obarroncs/pwnbox:full
@@ -15,9 +16,10 @@ ghcr.io/obarroncs/pwnbox:full
 ## Quick install
 ```sh
 # Full setup for a new Ubuntu VM / machine
-sudo apt install -y curl
-curl -LsSf obarroncs.github.io/pwnbox/apt.sh | bash
-curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash
+apt update && apt install -y sudo # for container
+sudo apt install -y wget
+bash <(wget -qO - obarroncs.github.io/pwnbox/apt.sh)
+bash <(wget -qO - obarroncs.github.io/pwnbox/user.sh)
 
 # Lite install
 export DEBIAN_FRONTEND=noninteractive

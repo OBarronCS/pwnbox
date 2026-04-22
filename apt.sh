@@ -55,49 +55,49 @@ fi
 
 
 print_info "Installing core tools"
-sudo apt install -y curl wget git zip unzip tmux vim htop ltrace strace jq make cmake pkg-config
+sudo -E apt install -y curl wget git zip unzip tmux vim htop ltrace strace jq make cmake pkg-config
 
 print_info "gdb"
-sudo apt install -y gdb gdbserver gdb-multiarch
+sudo -E apt install -y gdb gdbserver gdb-multiarch
 
 print_info "Installing debuginfod"
-sudo apt install -y debuginfod
+sudo -E apt install -y debuginfod
 
 echo 'export DEBUGINFOD_URLS="https://debuginfod.ubuntu.com"' >> ~/.bashrc
 echo "set debuginfod enabled on" >> ~/.bashrc
 
 print_info "Installing kitty-terminfo"
-sudo apt install -y kitty-terminfo
+sudo -E apt install -y kitty-terminfo
 
 print_info "nmap"
-sudo apt install -y nmap
+sudo -E apt install -y nmap
 
 print_info "Installing packages for 32bit development"
-sudo apt install -y gcc-multilib g++-multilib
+sudo -E apt install -y gcc-multilib g++-multilib
 # Debugging symbols
-sudo apt install -y libc6-dbg libc6-dbg:i386
-sudo apt install -y libstdc++6:i386
+sudo -E apt install -y libc6-dbg libc6-dbg:i386
+sudo -E apt install -y libstdc++6:i386
 
-sudo apt install -y pahole
+sudo -E apt install -y pahole
 
 print_info "Installing iproute2 + dnsutils"
-sudo apt install -y iproute2
-sudo apt install -y dnsutils
+sudo -E apt install -y iproute2
+sudo -E apt install -y dnsutils
 
 print_info "Installing command-not-found"
-sudo apt install -y command-not-found
+sudo -E apt install -y command-not-found
 # Fill command-not-found database
 sudo apt update -y
 
 print_info "Installing ruby-dev"
-sudo apt install -y ruby-dev
+sudo -E apt install -y ruby-dev
 
 # Ghidra requires java
 # print_info "Install java21 for Ghidra"
 # sudo apt install -y openjdk-21-jdk
 
 print_info "Installing pwninit dependencies"
-sudo apt install -y libssl-dev liblzma-dev pkg-config patchelf
+sudo -E apt install -y libssl-dev liblzma-dev pkg-config patchelf
 
 ## pyenv build tools
 print_info "Installing python build tools"
