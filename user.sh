@@ -307,9 +307,7 @@ if [ ! -f ~/.gdbinit ] || ! grep -Fq 'set print object on' ~/.gdbinit; then
     echo "set print nibbles on" >> ~/.gdbinit
     echo "set print asm-demangle on" >> ~/.gdbinit
     echo "set output-radix 16" >> ~/.gdbinit
-fi
 
-if ! grep -Fq 'set debuginfod enabled on' ~/.gdbinit; then
     echo "set debuginfod enabled on" >> ~/.gdbinit
 fi
 
