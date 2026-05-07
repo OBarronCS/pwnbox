@@ -282,13 +282,23 @@ if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
 fi
 
 if [ ! -f ~/.gdbinit ] || ! grep -Fq 'set print object on' ~/.gdbinit; then
-    # Pwndbg settings
+
+    # Pwndbg specific settings
+    echo "# START PWNDBG SETTINGS" >> ~/.gdbinit
+    echo -e 'if ! $_isvoid($hex2ptr)\n' >> ~/.gdbinit
+
+
     echo "set exception-verbose on" >> ~/.gdbinit
     echo "set exception-debugger on" >> ~/.gdbinit
 
     echo "set show-flags on" >> ~/.gdbinit
     echo "set show-retaddr-reg on" >> ~/.gdbinit
     echo "#set nearpc-num-opcode-bytes 4" >> ~/.gdbinit
+
+
+    echo "end" >> ~/.gdbinit
+    echo -e "\n# END PWNDBG SETTINGS\n" >> ~/.gdbinit
+    # End pwndbg specific settings
 
     echo "set print object on" >> ~/.gdbinit
     echo "set print vtbl on" >> ~/.gdbinit
