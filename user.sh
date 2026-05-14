@@ -308,6 +308,8 @@ if [ ! -f ~/.gdbinit ] || ! grep -Fq 'set print object on' ~/.gdbinit; then
     echo "set print asm-demangle on" >> ~/.gdbinit
     echo "set output-radix 16" >> ~/.gdbinit
 
+    echo "set history size unlimited" >> ~/.gdbinit
+
     echo "set debuginfod enabled on" >> ~/.gdbinit
 fi
 
