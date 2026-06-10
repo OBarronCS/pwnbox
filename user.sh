@@ -283,22 +283,27 @@ fi
 
 if [ ! -f ~/.gdbinit ] || ! grep -Fq 'set print object on' ~/.gdbinit; then
 
-    # Pwndbg specific settings
-    echo "# START PWNDBG SETTINGS" >> ~/.gdbinit
-    echo -e 'if ! $_isvoid($hex2ptr)\n' >> ~/.gdbinit
+# Pwndbg specific settings
+cat <<'EOF' >> ~/.gdbinit
+# START PWNDBG SETTINGS
+if ! $_isvoid($hex2ptr)
 
+set exception-verbose on
+set exception-debugger on
 
-    echo "set exception-verbose on" >> ~/.gdbinit
-    echo "set exception-debugger on" >> ~/.gdbinit
+set show-flags on
+set show-retaddr-reg on
+#set nearpc-num-opcode-bytes 4"
 
-    echo "set show-flags on" >> ~/.gdbinit
-    echo "set show-retaddr-reg on" >> ~/.gdbinit
-    echo "#set nearpc-num-opcode-bytes 4" >> ~/.gdbinit
+define set hookpost-architecture
+pi pwndbg.lib.cache.clear_caches()
+pi pwndbg.aglib.arch_mod.update()
+end
 
+end
+# END PWNDBG SETTINGS
 
-    echo "end" >> ~/.gdbinit
-    echo -e "\n# END PWNDBG SETTINGS\n" >> ~/.gdbinit
-    # End pwndbg specific settings
+EOF
 
     echo "set print object on" >> ~/.gdbinit
     echo "set print vtbl on" >> ~/.gdbinit
@@ -309,7 +314,6 @@ if [ ! -f ~/.gdbinit ] || ! grep -Fq 'set print object on' ~/.gdbinit; then
     echo "set output-radix 16" >> ~/.gdbinit
 
     echo "set history size unlimited" >> ~/.gdbinit
-
     echo "set debuginfod enabled on" >> ~/.gdbinit
 fi
 
