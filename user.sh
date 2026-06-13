@@ -94,7 +94,6 @@ if [[ $INSTALL_MISE =~ ^[Yy] ]]
 then
     print_info "Installing mise"
     if ! command -v mise &> /dev/null; then
-        print_info "Installing mise"
         curl https://mise.run | sh
 
         # Using shims method to avoid per-prompt delay
