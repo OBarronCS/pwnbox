@@ -48,17 +48,18 @@ then
     LITE_MODE="Y"
 fi
 
+# Use mise as the manager for global python and nvm
+INSTALL_MISE="Y"
 
-INSTALL_MISE="N"
+INSTALL_PYENV="N"
+INSTALL_NVM="N"
 INSTALL_RUBY_TOOLS="N"
 
 INSTALL_UV="Y"
-INSTALL_PYENV="Y"
-INSTALL_NVM="Y"
-INSTALL_PWNDBG="Y"
 INSTALL_RUST="Y"
 INSTALL_ZOXIDE="Y"
 
+INSTALL_PWNDBG="Y"
 INSTALL_PWNINIT="Y"
 
 if [[ $LITE_MODE =~ ^[Yy] ]]
@@ -86,14 +87,24 @@ else
     print_info "fzf already installed"
 fi
 
+# If mise already installed, source it
+[ -f "$HOME/.local/bin/mise" ] && eval "$($HOME/.local/bin/mise activate --shims bash)"
 
 if [[ $INSTALL_MISE =~ ^[Yy] ]]
 then
     print_info "Installing mise"
-    if ! command -v uv &> /dev/null; then
+    if ! command -v mise &> /dev/null; then
         print_info "Installing mise"
         curl https://mise.run | sh
-        echo 'eval "$(~/.local/bin/mise activate bash)"' >> ~/.bashrc
+
+        # Using shims method to avoid per-prompt delay
+        echo 'eval "$($HOME/.local/bin/mise activate --shims bash)"' >> ~/.bashrc
+
+        # Source it immediately
+        eval "$(~/.local/bin/mise activate --shims bash)"
+
+        # Install python immediately
+        mise use -g python@3.13
     else
         print "Mise already installed"
     fi
@@ -120,7 +131,7 @@ then
     if [ ! -d "${HOME}/.pyenv" ]; then
         curl -fsSL https://pyenv.run | bash
         echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
-        echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+        echo 'eval "$(pyenv init - bash)"' >> ~/.bashrc
         
         # Really bad for performance
         # echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
