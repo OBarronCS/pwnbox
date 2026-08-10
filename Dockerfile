@@ -136,7 +136,7 @@ WORKDIR /home/ubuntu
 RUN echo "export LC_ALL=en_US.UTF-8" >> ~/.bashrc && \
     echo "export LANG=en_US.UTF-8" >> ~/.bashrc && \
     echo "export LANGUAGE=en_US.UTF-8" >> ~/.bashrc && \
-    echo 'export DEBUGINFOD_URLS="https://debuginfod.ubuntu.com"' >> ~/.bashrc && \
+    echo '#export DEBUGINFOD_URLS="https://debuginfod.ubuntu.com"' >> ~/.bashrc && \
     echo "set debuginfod enabled on" >> ~/.bashrc && \
     echo '[[ -f ~/.bashrc ]] && . ~/.bashrc' > ~/.bash_profile
 
