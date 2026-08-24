@@ -315,16 +315,38 @@ end
 
 EOF
 
-    echo "set print object on" >> ~/.gdbinit
-    echo "set print vtbl on" >> ~/.gdbinit
-    echo "set print symbol-filename on" >> ~/.gdbinit
-    echo "set print symbol on" >> ~/.gdbinit
-    echo "set print nibbles on" >> ~/.gdbinit
-    echo "set print asm-demangle on" >> ~/.gdbinit
-    echo "set output-radix 16" >> ~/.gdbinit
+cat <<EOF >> ~/.gdbinit
+set print object on
+set print vtbl on
+set print symbol-filename on
+set print symbol on
+set print nibbles on
+set print asm-demangle on
+set output-radix 16
+set history size unlimited
+set debuginfod enabled on
 
-    echo "set history size unlimited" >> ~/.gdbinit
-    echo "set debuginfod enabled on" >> ~/.gdbinit
+source $HOME/.disable_ubuntu_debuginfod_url
+
+EOF
+
+
+cat <<'EOF' >> ~/.disable_ubuntu_debuginfod_url
+python
+import gdb
+
+bad_domain = "debuginfod.ubuntu.com"
+s = gdb.execute("show debuginfod urls", to_string=True)
+
+urls = s.split(":", 1)[1].strip().split()
+
+if any(bad_domain in url for url in urls):
+    urls = [url for url in urls if bad_domain not in url]
+    gdb.execute("set debuginfod urls" + " ".join(urls))
+end
+EOF
+
+
 fi
 
 # TODO:
