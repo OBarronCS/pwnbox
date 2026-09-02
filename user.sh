@@ -325,6 +325,7 @@ set print asm-demangle on
 set output-radix 16
 set history size unlimited
 set debuginfod enabled on
+# set may-call-functions off
 
 source $HOME/.disable_ubuntu_debuginfod_url
 
