@@ -316,6 +316,14 @@ end
 EOF
 
 cat <<EOF >> ~/.gdbinit
+set history save on
+set history size unlimited
+set confirm off
+set verbose off
+set pagination off
+set step-mode on
+set backtrace past-main on
+set disassembly-flavor intel
 set print object on
 set print vtbl on
 set print symbol-filename on
@@ -323,8 +331,8 @@ set print symbol on
 set print nibbles on
 set print asm-demangle on
 set output-radix 16
-set history size unlimited
 set debuginfod enabled on
+
 # set may-call-functions off
 
 source $HOME/.disable_ubuntu_debuginfod_url
