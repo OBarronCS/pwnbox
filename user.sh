@@ -316,6 +316,7 @@ end
 EOF
 
 cat <<EOF >> ~/.gdbinit
+set auto-load safe-path /
 set history save on
 set history size unlimited
 set confirm off
