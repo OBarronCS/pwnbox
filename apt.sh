@@ -60,6 +60,10 @@ sudo -E apt install -y curl wget git zip unzip tmux vim htop ltrace strace jq ma
 print_info "gdb"
 sudo -E apt install -y gdb gdbserver gdb-multiarch
 
+print_info "ncdu"
+sudo -E apt install -y ncdu
+
+
 print_info "Installing debuginfod"
 sudo -E apt install -y debuginfod
 
