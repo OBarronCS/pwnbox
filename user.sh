@@ -105,7 +105,7 @@ then
         # Install python immediately
         mise use -g python@3.13
     else
-        print "Mise already installed"
+        print_info "Mise already installed"
     fi
 fi
 
