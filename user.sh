@@ -365,3 +365,8 @@ fi
 
 print_info "Done! Make sure to exec into a new shell for changes to take effect"
 
+
+echo "Restart the shell by running:"
+echo
+echo 'exec $SHELL'
+echo
