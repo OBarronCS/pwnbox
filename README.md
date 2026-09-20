@@ -14,17 +14,22 @@ ghcr.io/obarroncs/pwnbox:full
 ```
 
 ## Quick install
+Full setup for a new Ubuntu VM / machine
 ```sh
-# Full setup for a new Ubuntu VM / machine
 apt update && apt install -y sudo # for container
 sudo apt install -y wget
 bash <(wget -qO - obarroncs.github.io/pwnbox/apt.sh)
 bash <(wget -qO - obarroncs.github.io/pwnbox/user.sh)
+```
 
-# Lite install
+Lite install
+```sh
+(
+set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
-sudo apt update -y && sudo -E apt install -y build-essential curl wget vim git tmux kitty-terminfo
+sudo apt update -y; sudo -E apt install -y build-essential curl wget vim git tmux kitty-terminfo
 curl -LsSf obarroncs.github.io/pwnbox/user.sh | bash -s -- lite
+)
 ```
 
 ## Create WSL image from the container
