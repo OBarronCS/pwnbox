@@ -269,25 +269,29 @@ fi
 
 print_info "Adding aliases and .bashrc setup"
 if ! grep -Fq 'back(){ $@ & disown ; }' ~/.bashrc; then
-    # Unlimited history
-    echo "PS1='\[\e[0m\][\[\e[0m\]\u\[\e[0m\]:\[\e[0m\]\w\[\e[0m\]]\[\e[0m\]$ \[\e[0m\]'" >> ~/.bashrc
-    echo 'export HISTSIZE=' >> ~/.bashrc
-    echo 'export HISTFILESIZE=' >> ~/.bashrc
-    echo 'export HISTCONTROL=ignoredups' >> ~/.bashrc
-    echo 'alias pwninit="pwninit --no-template"' >> ~/.bashrc
-    echo 'back(){ $@ & disown ; }' >> ~/.bashrc
-    echo 'codehere(){ back code . ; }' >> ~/.bashrc
-    printf 'if [ -f /run/.containerenv  ] || [ -f /run/.toolboxenv ] || [ -f /.dockerenv ];\nthen\n    PS1="🧊 $PS1";\nfi\n' >> ~/.bashrc
-    echo "alias gdb=\"gdb -q\"" >> ~/.bashrc
-    echo "export EDITOR=vim" >> ~/.bashrc
-    echo 'export PATH="$PATH:$HOME/ctfsetup/bin"' >> ~/.bashrc
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-    echo 'eval "$(zoxide init bash)"' >> ~/.bashrc
-    echo 'alias ossh="TERM=xterm-256color \\ssh"' >> ~/.bashrc
-    echo 'alias tmo="history -a; tmux"' >> ~/.bashrc
-    echo 'alias ipi="PWNLIB_NOTERM=1 PYTHONSTARTUP=~/.pythonrc.py python"' >> ~/.bashrc
 
-    echo 'export FZF_CTRL_R_OPTS='\''--bind "enter:become:if [[ -n {} ]]; then echo {}; else echo {q}; fi" --bind "ctrl-c:become:echo {q}"'\''' >> ~/.bashrc
+cat <<'EOF' >> ~/.bashrc
+# History settings
+export HISTSIZE=
+export HISTFILESIZE=
+export HISTCONTROL=ignoredups
+export HISTFILE=~/.bash_history_full
+
+alias tmo="history -a; tmux"
+alias pwninit="pwninit --no-template"
+PS1='\[\e[0m\][\[\e[0m\]\u\[\e[0m\]:\[\e[0m\]\w\[\e[0m\]]\[\e[0m\]$ \[\e[0m\]'
+if [ -f /run/.containerenv  ] || [ -f /run/.toolboxenv ] || [ -f /.dockerenv ]; then PS1="🧊 $PS1"; fi
+back(){ $@ & disown ; }
+codehere(){ back code . ; }
+alias gdb="gdb -q"
+export EDITOR=vim
+export PATH="$PATH:$HOME/ctfsetup/bin"
+export PATH="$HOME/.local/bin:$PATH"
+eval "$(zoxide init bash)"
+alias ossh="TERM=xterm-256color \\ssh"
+alias ipi="PWNLIB_NOTERM=1 PYTHONSTARTUP=~/.pythonrc.py python"
+export FZF_CTRL_R_OPTS='--bind "enter:become:if [[ -n {} ]]; then echo {}; else echo {q}; fi" --bind "ctrl-c:become:echo {q}"'
+EOF
 
 fi
 
