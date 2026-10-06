@@ -51,13 +51,13 @@ fi
 # Use mise as the manager for global python and nvm
 INSTALL_MISE="Y"
 
-INSTALL_PYENV="N"
-INSTALL_NVM="N"
-INSTALL_RUBY_TOOLS="N"
-
 INSTALL_UV="Y"
 INSTALL_RUST="Y"
 INSTALL_ZOXIDE="Y"
+
+INSTALL_PYENV="N"
+INSTALL_NVM="N"
+INSTALL_RUBY_TOOLS="N"
 
 INSTALL_PWNDBG="Y"
 INSTALL_PWNINIT="Y"
@@ -66,6 +66,7 @@ if [[ $LITE_MODE =~ ^[Yy] ]]
 then
     INSTALL_PYENV="N"
     INSTALL_NVM="N"
+
     INSTALL_PWNDBG="N"
     INSTALL_PWNINIT="N"
 fi
@@ -103,7 +104,7 @@ then
         eval "$(~/.local/bin/mise activate --shims bash)"
 
         # Install python immediately
-        mise use -g python@3.13
+        mise use -g python@3.14
     else
         print_info "Mise already installed"
     fi
@@ -321,8 +322,11 @@ EOF
 
 cat <<EOF >> ~/.gdbinit
 set auto-load safe-path /
+
 set history save on
 set history size unlimited
+set history filename .gdb_history
+
 set confirm off
 set verbose off
 set pagination off
