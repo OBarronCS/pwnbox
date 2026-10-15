@@ -14,6 +14,13 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
 
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    
     strategy:
       matrix:
         version:
@@ -22,13 +29,6 @@ jobs:
           - { base: "25.10", default: false }
           - { base: "26.04", default: true }
 
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-    
     steps:
 
       - name: Checkout the repository
@@ -112,4 +112,13 @@ jobs:
     uses: ./.github/workflows/release-wsl-filesystem.yaml
     with:
       tag: ${{ github.ref_name }}
-      
+    
+
+  build-full:
+    permissions:
+      contents: write
+      packages: read
+
+    needs: build-and-push-image
+    uses: ./.github/workflows/publish-full-docker-image.yaml
+    secrets: inherit

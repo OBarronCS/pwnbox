@@ -2,9 +2,7 @@ name: Publish Full Docker Image
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Publish Docker Images"]
-    types: [completed]
+  workflow_call:
 
 env:
   REGISTRY: ghcr.io
@@ -13,12 +11,19 @@ env:
 jobs:
   build-and-push-full-image:
     runs-on: ubuntu-latest
+    
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
+
+    strategy:
+      matrix:
+        version:
+          - { base: "26.04", default: true }
+          
     steps:
 
       - name: Checkout the repository
@@ -40,9 +45,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=tag,prefix=full-
-            type=sha,prefix=full-
-            type=raw,value=full
+            type=raw,value=full-ubuntu${{ matrix.version.base }},prefix=
+            type=ref,event=tag
+            type=sha,prefix=full-ubuntu${{ matrix.version.base }}-
+            type=raw,value=full,enable=${{ matrix.version.default }},prefix=
+          flavor: |
+            latest=false
+            prefix=full-ubuntu${{ matrix.version.base }}-,onlatest=false
 
       - name: Full image
         uses: docker/build-push-action@v7
@@ -50,6 +59,7 @@ jobs:
           context: .
           target: wsl
           build-args: |
+            UBUNTU_VERSION=${{ matrix.version.base }}
             FULL_BUILD=true
           pull: true
           push: true
