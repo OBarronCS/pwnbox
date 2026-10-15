@@ -75,15 +75,11 @@ ARG FULL_BUILD=false
 RUN if [ "$FULL_BUILD" = "true" ]; then \
     apt-get update -y && apt-get install -y \
     llvm \
-    qemu-system qemu-kvm qemu-user qemu-user-binfmt \
+    qemu-system qemu-user qemu-user-binfmt \
     gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
         libc6-arm64-cross libc6-dbg-arm64-cross libstdc++6-11-dbg-arm64-cross libstdc++-11-pic-arm64-cross \
     gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
         libc6-armel-cross libc6-armhf-cross libc6-dbg-armhf-cross libstdc++6-11-dbg-armhf-cross libstdc++-11-pic-armhf-cross \
-    gcc-mips-linux-gnu g++-mips-linux-gnu \
-        libc6-mips-cross \
-    gcc-mips64-linux-gnuabi64 g++-mips64-linux-gnuabi64 \
-        libc6-mips64-cross \
     gcc-riscv64-linux-gnu g++-riscv64-linux-gnu \
         libc6-riscv64-cross \
     gcc-powerpc-linux-gnu g++-powerpc-linux-gnu \
@@ -92,28 +88,41 @@ RUN if [ "$FULL_BUILD" = "true" ]; then \
         libc6-sparc64-cross \
     gcc-loongarch64-linux-gnu \
         libc6-loong64-cross \
+    gcc-m68k-linux-gnu \
+        libc6-dev-m68k-cross \
+    gcc-alpha-linux-gnu \
+        libc6.1-dev-alpha-cross \
+    gcc-hppa-linux-gnu \
+        libc6-dev-hppa-cross \
+    # gcc-mips-linux-gnu g++-mips-linux-gnu \
+    #     libc6-mips-cross \
+    # gcc-mips64-linux-gnuabi64 g++-mips64-linux-gnuabi64 \
+    #     libc6-mips64-cross \
     && rm -rf /var/lib/apt/lists/* ; \
     fi
 
 RUN mkdir /etc/qemu-binfmt && \
     mkdir /usr/gnemul && \
-    ln -s /usr/aarch64-linux-gnu /etc/qemu-binfmt/aarch64 && \
-        ln -s /etc/qemu-binfmt/aarch64 /usr/gnemul/qemu-aarch64 && \
-    ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm && \
-        ln -s /etc/qemu-binfmt/arm /usr/gnemul/qemu-arm && \
-    ln -s /usr/mips-linux-gnu /etc/qemu-binfmt/mips && \
-        ln -s /etc/qemu-binfmt/mips /usr/gnemul/qemu-mips && \
-    ln -s /usr/mips64-linux-gnuabi64/ /etc/qemu-binfmt/mips64 && \
-        ln -s /etc/qemu-binfmt/mips64  /usr/gnemul/qemu-mips64 && \
-    ln -s /usr/powerpc-linux-gnu/ /etc/qemu-binfmt/ppc && \
-        ln -s /etc/qemu-binfmt/ppc  /usr/gnemul/qemu-ppc && \
-    ln -s /usr/powerpc64-linux-gnu/ /etc/qemu-binfmt/ppc64 && \
-        ln -s /etc/qemu-binfmt/ppc64  /usr/gnemul/qemu-ppc64 && \
-    ln -s /usr/sparc64-linux-gnu/ /etc/qemu-binfmt/sparc64 && \
-        ln -s /etc/qemu-binfmt/sparc64 /usr/gnemul/qemu-sparc64 && \
-    ln -s /usr/riscv64-linux-gnu/ /etc/qemu-binfmt/riscv64 && \
-        ln -s /etc/qemu-binfmt/riscv64 /usr/gnemul/qemu-riscv64 && \
-    ln -s /usr/loongarch64-linux-gnu/ /usr/gnemul/qemu-loongarch64
+    ln -sfn /usr/aarch64-linux-gnu /etc/qemu-binfmt/aarch64 && \
+        ln -sfn /etc/qemu-binfmt/aarch64 /usr/gnemul/qemu-aarch64 && \
+    ln -sfn /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm && \
+        ln -sfn /etc/qemu-binfmt/arm /usr/gnemul/qemu-arm && \
+    ln -sfn /usr/mips-linux-gnu /etc/qemu-binfmt/mips && \
+        ln -sfn /etc/qemu-binfmt/mips /usr/gnemul/qemu-mips && \
+    ln -sfn /usr/mips64-linux-gnuabi64/ /etc/qemu-binfmt/mips64 && \
+        ln -sfn /etc/qemu-binfmt/mips64  /usr/gnemul/qemu-mips64 && \
+    ln -sfn /usr/powerpc-linux-gnu/ /etc/qemu-binfmt/ppc && \
+        ln -sfn /etc/qemu-binfmt/ppc  /usr/gnemul/qemu-ppc && \
+    ln -sfn /usr/powerpc64-linux-gnu/ /etc/qemu-binfmt/ppc64 && \
+        ln -sfn /etc/qemu-binfmt/ppc64  /usr/gnemul/qemu-ppc64 && \
+    ln -sfn /usr/sparc64-linux-gnu/ /etc/qemu-binfmt/sparc64 && \
+        ln -sfn /etc/qemu-binfmt/sparc64 /usr/gnemul/qemu-sparc64 && \
+    ln -sfn /usr/riscv64-linux-gnu/ /etc/qemu-binfmt/riscv64 && \
+        ln -sfn /etc/qemu-binfmt/riscv64 /usr/gnemul/qemu-riscv64 && \
+    ln -sfn /usr/loongarch64-linux-gnu/ /usr/gnemul/qemu-loongarch64 && \
+    ln -sfn /usr/m68k-linux-gnu/ /usr/gnemul/qemu-m68k && \
+    ln -sfn /usr/alpha-linux-gnu/ /usr/gnemul/qemu-alpha && \
+    ln -sfn /usr/hppa-linux-gnu/ /usr/gnemul/qemu-hppa
 
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
