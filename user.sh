@@ -315,8 +315,10 @@ pi pwndbg.lib.cache.clear_caches()
 pi pwndbg.aglib.arch_mod.update()
 end
 
-end
 # END PWNDBG SETTINGS
+else
+    set disassemble-next-line on
+end
 
 EOF
 

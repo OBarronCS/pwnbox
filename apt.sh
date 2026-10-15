@@ -68,7 +68,6 @@ print_info "Installing debuginfod"
 sudo -E apt install -y debuginfod
 
 echo '#export DEBUGINFOD_URLS="https://debuginfod.ubuntu.com"' >> ~/.bashrc
-echo "set debuginfod enabled on" >> ~/.bashrc
 
 print_info "Installing kitty-terminfo"
 sudo -E apt install -y kitty-terminfo
