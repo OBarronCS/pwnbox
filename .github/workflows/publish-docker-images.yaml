@@ -116,8 +116,10 @@ jobs:
 
   build-full:
     permissions:
-      contents: write
-      packages: read
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
 
     needs: build-and-push-image
     uses: ./.github/workflows/publish-full-docker-image.yaml
