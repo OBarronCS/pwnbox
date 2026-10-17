@@ -108,8 +108,6 @@ sudo podman build . --target wsl -t pwnbox
 
 # Or, build with Docker and then pull the image so that Podman can see it:
 sudo podman pull docker-daemon:pwnbox:latest
-
-# To use this local image with `pwnbox create`, run `pwnbox config set --image pwnbox`
 ```
 
 ### Notes on WSL + Docker Desktop on Windows
